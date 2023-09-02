@@ -59,5 +59,12 @@ int main(int argc, char* argv[])
   requestedToStop = true;
   t.join();
 
+  for (auto it = clients.begin(); it != clients.end(); it++)
+  {
+    (*it)->Stop();
+  }
+
+  server->Stop();
+  pubSubServer->Stop();
 	return 0;
 }

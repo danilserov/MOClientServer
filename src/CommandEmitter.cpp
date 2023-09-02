@@ -9,6 +9,7 @@ using namespace std::chrono_literals;
 CommandEmitter::CommandEmitter(const std::string& client_id):
   stopRequested_(false),
   client_id_(client_id),
+  curCommandId(0),
   pubSubServer_(PubSubServer::getInstance())
 {
   pubSubServer_->
@@ -28,24 +29,54 @@ CommandEmitter::~CommandEmitter()
 void CommandEmitter::OnReceive(CommandPtr command)
 {
   MOStat::received_++;
+
+  if (syncCommandId_ == command->commandId_)
+  {
+    syncResult_ = command;
+    conditionSyncReceived_.notify_one();
+  }
+}
+
+CommandPtr CommandEmitter::ExecuteSync(CommandPtr command)
+{
+  CommandPtr result = nullptr;  
+
+  syncCommandId_ = command->commandId_;
+  pubSubServer_->Publish(command);
+
+  std::unique_lock<std::mutex> lock(mutexSyncSend_);
+  MOStat::sent_++;  
+
+  auto timeout = std::chrono::steady_clock::now() + std::chrono::seconds(SYNC_SEND_TIMEOUT_SEC);
+
+  conditionSyncReceived_.wait_until(lock, timeout, [this] {
+    return syncResult_!= nullptr || stopRequested_;
+    });
+
+  std::swap(result, syncResult_);
+
+  return result;
 }
 
 void CommandEmitter::Work()
 {
   while (!stopRequested_)
   {
-    CommandPtr command(new Command);
+    CommandPtr command(new Command(curCommandId++));
     command->replayTopic_ = client_id_;
     command->payload_ = "TODO";
     command->topic_ = PubSubServer::TOPIC_COMMAND;
-
-    if (MOStat::sent_ % 100 == 0)
-    {
-      command->delay_ = 1;
-    }
-    pubSubServer_->Publish(command);
+    
     MOStat::sent_++;
 
+    if (MOStat::sent_ % 10 == 0)
+    {
+      ExecuteSync(command);
+    }
+    else
+    {
+      pubSubServer_->Publish(command);
+    }
     //std::this_thread::sleep_for(1ms);
   }
 }
@@ -53,5 +84,8 @@ void CommandEmitter::Work()
 void CommandEmitter::Stop()
 {
   stopRequested_ = true;
-  thread_.join();
+  conditionSyncReceived_.notify_all();
+
+  if (thread_.joinable())
+    thread_.join();
 }

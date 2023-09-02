@@ -13,8 +13,9 @@ private:
   std::string client_id_;
   std::thread thread_;
   std::shared_ptr<PubSubServer> pubSubServer_;
-
+  std::atomic<long> curCommandId;
 public:
+  const int SYNC_SEND_TIMEOUT_SEC = 10;
   CommandEmitter(const std::string& client_id);
   ~CommandEmitter();
   void Stop();
@@ -22,6 +23,12 @@ private:
   bool stopRequested_;
   void Work();
   void OnReceive(CommandPtr command) override;
+  CommandPtr ExecuteSync(CommandPtr command);
+private:
+  std::condition_variable conditionSyncReceived_;
+  std::atomic<long> syncCommandId_;
+  CommandPtr syncResult_;
+  std::mutex mutexSyncSend_;
 };
 
 typedef std::shared_ptr<CommandEmitter> CommandEmitterPtr;

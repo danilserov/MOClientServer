@@ -16,6 +16,7 @@ private:
 public:
   LoadBalancer();
   ~LoadBalancer();
+  void Stop();
 };
 
 typedef std::shared_ptr<LoadBalancer> LoadBalancerPtr;

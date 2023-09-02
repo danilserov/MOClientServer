@@ -23,15 +23,16 @@ CommandProcessor::~CommandProcessor()
 int CommandProcessor::GetBusyScore()
 {
   std::lock_guard<std::mutex> lock(mutexQueue_);
-  return commandQueue_.size();
-  return 0;
+  return (int)commandQueue_.size();
 }
 
 void CommandProcessor::Stop()
 {
   stopRequested_ = true;
   conditionQueue_.notify_one();
-  thread_.join();
+
+  if (thread_.joinable())
+    thread_.join();
 }
 
 void CommandProcessor::Work()
@@ -63,14 +64,16 @@ void CommandProcessor::Work()
 
 CommandPtr CommandProcessor::ProcessCommand(CommandPtr command)
 {
-  CommandPtr replay(new Command());
+  // Simulate some processing.
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+  CommandPtr replay(new Command(command->commandId_));
   replay->topic_ = command->replayTopic_;
 
   if (command->payload_ == "TODO")
   {
     replay->payload_ = "REPLAY";
   }
-  std::this_thread::sleep_for(std::chrono::milliseconds(command->delay_));
   
   return replay;
 }

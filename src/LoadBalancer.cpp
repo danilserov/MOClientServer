@@ -58,3 +58,12 @@ void LoadBalancer::OnReceive(CommandPtr command)
   auto proc = GetAvailableProc();
   proc->AddCommand(command);
 }
+
+void LoadBalancer::Stop()
+{
+  std::unique_lock<std::shared_mutex> lock(mutexProc_);
+  for (auto it = commandProcesseros_.begin(); it != commandProcesseros_.end(); ++it)
+  {
+    (*it)->Stop();
+  }
+}

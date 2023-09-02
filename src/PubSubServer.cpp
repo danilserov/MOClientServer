@@ -44,7 +44,8 @@ void PubSubServer::Stop()
 
   for (auto it = threads_.begin(); it != threads_.end(); it++)
   {
-    it->join();
+    if (it->joinable())
+      it->join();
   }
 }
 
@@ -88,12 +89,17 @@ void PubSubServer::Work()
 
 void PubSubServer::Publish(CommandPtr command)
 {
+  if (stopRequested_)
+  {
+    return;
+  }
+
   {
     std::lock_guard<std::mutex> lock(mutexQueue_);
     commandQueue_.push(command);
     MOStat::publishedQueue_ = (long)commandQueue_.size();
 
-    if (commandQueue_.size() > MAX_QUEUE)
+    if (commandQueue_.size() > MAX_QUEUE && !command->replayTopic_.empty())
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
