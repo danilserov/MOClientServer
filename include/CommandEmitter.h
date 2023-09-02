@@ -13,6 +13,7 @@ private:
   std::string client_id_;
   std::thread thread_;
   std::shared_ptr<PubSubServer> pubSubServer_;
+
 public:
   CommandEmitter(const std::string& client_id);
   ~CommandEmitter();

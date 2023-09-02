@@ -65,6 +65,7 @@ void PubSubServer::Work()
       }
       command = commandQueue_.front();
       commandQueue_.pop();
+      MOStat::publishedQueue_ = (long)commandQueue_.size();
     }
 
     if (command != nullptr)
@@ -88,6 +89,7 @@ void PubSubServer::Publish(CommandPtr command)
   {
     std::lock_guard<std::mutex> lock(mutexQueue_);
     commandQueue_.push(command);
+    MOStat::publishedQueue_ = (long)commandQueue_.size();
   }
   
   conditionQueue_.notify_one();

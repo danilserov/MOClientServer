@@ -10,6 +10,7 @@
 #include <unordered_set>
 #include "Command.h"
 #include "ISubscriber.h"
+#include "MOStat.h"
 
 class PubSubServer;
 typedef std::shared_ptr<PubSubServer> PubSubServerPtr;

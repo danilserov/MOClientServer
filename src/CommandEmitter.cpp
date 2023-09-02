@@ -1,7 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include "CommandEmitter.h"
+#include "MOStat.h"
+
 using namespace std::chrono_literals;
+
 
 CommandEmitter::CommandEmitter(const std::string& client_id):
   stopRequested_(false),
@@ -24,7 +27,7 @@ CommandEmitter::~CommandEmitter()
 
 void CommandEmitter::OnReceive(CommandPtr command)
 {
-
+  MOStat::received_++;
 }
 
 void CommandEmitter::Work()
@@ -36,6 +39,8 @@ void CommandEmitter::Work()
     command->payload_ = "TODO";
     command->topic_ = PubSubServer::TOPIC_COMMAND;
     pubSubServer_->Publish(command);
+    MOStat::sent_++;
+
     //std::this_thread::sleep_for(1ms);
   }
 }

@@ -2,10 +2,13 @@
 //
 #include <vector>
 #include "Program.h"
+#include "MOStat.h"
 #include "PubSubServer.h"
 #include "CommandProcessor.h"
 #include "LoadBalancer.h"
 #include "CommandEmitter.h"
+
+using namespace std::chrono_literals;
 
 int main(int argc, char* argv[])
 {
@@ -34,6 +37,25 @@ int main(int argc, char* argv[])
   }
 
   std::cout << "enter to exit" << std::endl;
+
+  bool requestedToStop = false;
+  std::thread t([&]()
+    {
+      while (!requestedToStop)
+      {
+        std::this_thread::sleep_for(1000ms);
+         std::cout 
+           << " queue:" << MOStat::publishedQueue_
+           << " sent:" << MOStat::sent_
+           << " received:" << MOStat::received_
+           << std::endl;
+      }
+    }
+
+  );
   std::cin.get();
+  requestedToStop = true;
+  t.join();
+
 	return 0;
 }
