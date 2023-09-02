@@ -5,8 +5,8 @@
     {
       "type": "default",
       "project": "CMakeLists.txt",
-      "projectTarget": "CommandEmitter.exe",
-      "name": "CommandEmitter.exe (with params)",
+      "projectTarget": "MOClientServer.exe",
+      "name": "MOClientServer.exe (with params)",
       "args": [
         10
       ]

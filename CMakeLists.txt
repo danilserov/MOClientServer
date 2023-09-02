@@ -9,18 +9,18 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-project ("CommandEmitter")
+project ("MOClientServer")
 
 include_directories(include)
 file(GLOB SOURCES src/*.cpp)
 file(GLOB HEADERS include/*.h)
 # Add source to this project's executable.
-add_executable (CommandEmitter 
+add_executable (MOClientServer 
 ${SOURCES}
 ${HEADERS}
 )
 
-set_property(TARGET CommandEmitter PROPERTY CXX_STANDARD 14)
+set_property(TARGET MOClientServer PROPERTY CXX_STANDARD 14)
 
 
 # TODO: Add tests and install targets if needed.

@@ -7,7 +7,9 @@
 class CommandProcessor
 {
 private:
-  std::shared_ptr<PubSubServer> PubSubServer_;
+  std::shared_ptr<PubSubServer> pubSubServer_;
 public:
   explicit CommandProcessor();
 };
+
+typedef std::shared_ptr<CommandProcessor> CommandProcessorPtr;
