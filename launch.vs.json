@@ -1,0 +1,15 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "CommandEmitter.exe",
+      "name": "CommandEmitter.exe (with params)",
+      "args": [
+        10
+      ]
+    }
+  ]
+}
