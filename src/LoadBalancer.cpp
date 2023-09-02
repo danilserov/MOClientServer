@@ -22,10 +22,13 @@ CommandProcessorPtr LoadBalancer::GetAvailableProc()
   {
     std::shared_lock<std::shared_mutex> shared_lock(mutexProc_);
     procSize = commandProcesseros_.size();
+    MOStat::servers_ = procSize;
+    int procQueue = 0;
 
     for (auto it = commandProcesseros_.begin(); it != commandProcesseros_.end(); it++)
     {
       int score = (*it)->GetBusyScore();
+      procQueue += score;
 
       if (score < max_score_val)
       {
@@ -33,6 +36,8 @@ CommandProcessorPtr LoadBalancer::GetAvailableProc()
         retVal = *it;
       }
     }
+
+    MOStat::procQueue_ = procQueue;
   }
 
 

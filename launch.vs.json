@@ -8,7 +8,7 @@
       "projectTarget": "MOClientServer.exe",
       "name": "MOClientServer.exe (with params)",
       "args": [
-        2
+        10
       ]
     }
   ]

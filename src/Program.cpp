@@ -2,7 +2,6 @@
 //
 #include <vector>
 #include "Program.h"
-#include "MOStat.h"
 #include "PubSubServer.h"
 #include "CommandProcessor.h"
 #include "LoadBalancer.h"
@@ -48,6 +47,9 @@ int main(int argc, char* argv[])
            << " queue:" << MOStat::publishedQueue_
            << " sent:" << MOStat::sent_
            << " received:" << MOStat::received_
+           << " procs:" << MOStat::servers_
+           << " procQueue:" << MOStat::procQueue_
+           
            << std::endl;
       }
     }

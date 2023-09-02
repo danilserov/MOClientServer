@@ -38,6 +38,11 @@ void CommandEmitter::Work()
     command->replayTopic_ = client_id_;
     command->payload_ = "TODO";
     command->topic_ = PubSubServer::TOPIC_COMMAND;
+
+    if (MOStat::sent_ % 100 == 0)
+    {
+      command->delay_ = 1;
+    }
     pubSubServer_->Publish(command);
     MOStat::sent_++;
 

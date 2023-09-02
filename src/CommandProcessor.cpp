@@ -22,6 +22,8 @@ CommandProcessor::~CommandProcessor()
 
 int CommandProcessor::GetBusyScore()
 {
+  std::lock_guard<std::mutex> lock(mutexQueue_);
+  return commandQueue_.size();
   return 0;
 }
 
@@ -53,12 +55,24 @@ void CommandProcessor::Work()
 
     if (command != nullptr)
     {
-      CommandPtr replay(new Command());
-      replay->topic_ = command->replayTopic_;
-      replay->payload_ = "REPLAY";
+      auto replay = ProcessCommand(command);
       pubSubServer_->Publish(replay);
     }
   }
+}
+
+CommandPtr CommandProcessor::ProcessCommand(CommandPtr command)
+{
+  CommandPtr replay(new Command());
+  replay->topic_ = command->replayTopic_;
+
+  if (command->payload_ == "TODO")
+  {
+    replay->payload_ = "REPLAY";
+  }
+  std::this_thread::sleep_for(std::chrono::milliseconds(command->delay_));
+  
+  return replay;
 }
 
 void CommandProcessor::AddCommand(CommandPtr command)

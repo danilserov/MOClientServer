@@ -15,6 +15,7 @@ private:
   std::condition_variable conditionQueue_;
   std::queue<CommandPtr> commandQueue_;
   std::mutex mutexQueue_;
+  CommandPtr ProcessCommand(CommandPtr command);
 public:
   CommandProcessor();
   ~CommandProcessor();

@@ -52,7 +52,7 @@ void PubSubServer::Work()
 {
   while (!stopRequested_)
   {
-    CommandPtr command = nullptr;
+    std::queue<CommandPtr> commandQueue;
     {
       std::unique_lock<std::mutex> lock(mutexQueue_);
       conditionQueue_.wait(lock, [this] {
@@ -63,13 +63,15 @@ void PubSubServer::Work()
       {
         continue;
       }
-      command = commandQueue_.front();
-      commandQueue_.pop();
       MOStat::publishedQueue_ = (long)commandQueue_.size();
+
+      std::swap(commandQueue, commandQueue_);      
     }
 
-    if (command != nullptr)
+    while (!commandQueue.empty())
     {
+      auto command = commandQueue.front();
+      commandQueue.pop();
       std::shared_lock<std::shared_mutex> shared_lock(mutexSubscribers_);
       auto it = subscribers_.find(command->topic_);
 
@@ -90,6 +92,11 @@ void PubSubServer::Publish(CommandPtr command)
     std::lock_guard<std::mutex> lock(mutexQueue_);
     commandQueue_.push(command);
     MOStat::publishedQueue_ = (long)commandQueue_.size();
+
+    if (commandQueue_.size() > MAX_QUEUE)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
   }
   
   conditionQueue_.notify_one();
