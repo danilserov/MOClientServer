@@ -10,13 +10,17 @@ CommandEmitter::CommandEmitter(const std::string& client_id):
   stopRequested_(false),
   client_id_(client_id),
   curCommandId(0),
+  syncResult_(nullptr),
   pubSubServer_(PubSubServer::getInstance())
 {
   pubSubServer_->
     Subscribe(client_id_, static_cast<ISubscriber*>(this));
 
-  thread_ = 
-    std::thread(&CommandEmitter::Work, this);
+  if (client_id != "test_sync_client")
+  {
+    thread_ =
+      std::thread(&CommandEmitter::Work, this);
+  }  
 }
 
 CommandEmitter::~CommandEmitter()
@@ -41,6 +45,7 @@ CommandPtr CommandEmitter::ExecuteSync(CommandPtr command)
 {
   CommandPtr result = nullptr;  
 
+  command->replayTopic_ = client_id_;
   syncCommandId_ = command->commandId_;
   pubSubServer_->Publish(command);
 

@@ -14,13 +14,39 @@ project ("MOClientServer")
 include_directories(include)
 file(GLOB SOURCES src/*.cpp)
 file(GLOB HEADERS include/*.h)
+file(GLOB PROGRAM program/*.h program/*.cpp)
+
 # Add source to this project's executable.
 add_executable (MOClientServer 
 ${SOURCES}
 ${HEADERS}
+${PROGRAM}
 )
 
 set_property(TARGET MOClientServer PROPERTY CXX_STANDARD 14)
 
+# Add tests and install targets if needed.
 
-# TODO: Add tests and install targets if needed.
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+file(GLOB TESTS tests/*.cpp)
+add_executable(MyTests 
+${TESTS}
+${SOURCES}
+${HEADERS}
+)
+
+#find_package(GTest REQUIRED)
+target_link_libraries(MyTests GTest::gtest_main)
+add_test(NAME MyTest COMMAND MyTests)
+
+

@@ -44,17 +44,18 @@ int main(int argc, char* argv[])
       {
         std::this_thread::sleep_for(1000ms);
          std::cout 
-           << " queue:" << MOStat::publishedQueue_
-           << " sent:" << MOStat::sent_
-           << " received:" << MOStat::received_
-           << " procs:" << MOStat::servers_
-           << " procQueue:" << MOStat::procQueue_
+           << " queue:" << MOStat::publishedQueue_ << "\t"
+           << " sent:" << MOStat::sent_ << "\t"
+           << " received:" << MOStat::received_ << "\t"
+           << " procs:" << MOStat::servers_ << "\t"
+           << " procQueue:" << MOStat::procQueue_ << "\t"
            
            << std::endl;
       }
     }
 
   );
+
   std::cin.get();
   requestedToStop = true;
   t.join();

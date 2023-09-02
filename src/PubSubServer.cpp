@@ -101,7 +101,7 @@ void PubSubServer::Publish(CommandPtr command)
 
     if (commandQueue_.size() > MAX_QUEUE && !command->replayTopic_.empty())
     {
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      std::this_thread::sleep_for(std::chrono::milliseconds(APROX_SERVER_DELAY));
     }
   }
   

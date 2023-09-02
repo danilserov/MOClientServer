@@ -19,11 +19,11 @@ public:
   CommandEmitter(const std::string& client_id);
   ~CommandEmitter();
   void Stop();
+  CommandPtr ExecuteSync(CommandPtr command);
 private:
   bool stopRequested_;
   void Work();
-  void OnReceive(CommandPtr command) override;
-  CommandPtr ExecuteSync(CommandPtr command);
+  void OnReceive(CommandPtr command) override;  
 private:
   std::condition_variable conditionSyncReceived_;
   std::atomic<long> syncCommandId_;
