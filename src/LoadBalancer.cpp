@@ -14,7 +14,42 @@ LoadBalancer::~LoadBalancer()
     Unsubscribe(PubSubServer::TOPIC_COMMAND, static_cast<ISubscriber*>(this));
 }
 
+CommandProcessorPtr LoadBalancer::GetAvailableProc()
+{
+  int max_score_val = 1000000;
+  int procSize = 0;
+  CommandProcessorPtr retVal = nullptr;
+  {
+    std::shared_lock<std::shared_mutex> shared_lock(mutexProc_);
+    procSize = commandProcesseros_.size();
+
+    for (auto it = commandProcesseros_.begin(); it != commandProcesseros_.end(); it++)
+    {
+      int score = (*it)->GetBusyScore();
+
+      if (score < max_score_val)
+      {
+        max_score_val = score;
+        retVal = *it;
+      }
+    }
+  }
+
+
+  if (
+      (retVal == nullptr || retVal->GetBusyScore() > 10) &&
+      procSize <  std::thread::hardware_concurrency()
+  )
+  {
+    std::unique_lock<std::shared_mutex> lock(mutexProc_);
+    retVal = std::make_shared<CommandProcessor>();
+    commandProcesseros_.push_back(retVal);    
+  }
+  return retVal;
+}
+
 void LoadBalancer::OnReceive(CommandPtr command)
 {
-
+  auto proc = GetAvailableProc();
+  proc->AddCommand(command);
 }

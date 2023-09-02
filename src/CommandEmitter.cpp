@@ -33,10 +33,10 @@ void CommandEmitter::Work()
   {
     CommandPtr command(new Command);
     command->replayTopic_ = client_id_;
-    command->todo_ = "TODO";
+    command->payload_ = "TODO";
     command->topic_ = PubSubServer::TOPIC_COMMAND;
     pubSubServer_->Publish(command);
-    std::this_thread::sleep_for(1ms);
+    //std::this_thread::sleep_for(1ms);
   }
 }
 
