@@ -13,12 +13,17 @@ int main(int argc, char* argv[])
 {
 	std::cout << "Hello MOClientServer." << std::endl;
 
+  int numOfClients = 10;
+
   if (argc < 2)
   {
     std::cerr << "Usage: MOClientServer <num_of_clients>" << std::endl;
-    return 1;
+    std::cout << "will create: " << numOfClients << " clients by default" << std::endl;
   }
-  int numOfClients = atoi(argv[1]);
+  else
+  {
+    numOfClients = atoi(argv[1]);
+  }
 
 
   PubSubServerPtr pubSubServer(PubSubServer::getInstance());
