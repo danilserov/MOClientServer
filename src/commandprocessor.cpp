@@ -65,7 +65,7 @@ void CommandProcessor::Work()
 CommandPtr CommandProcessor::ProcessCommand(CommandPtr command)
 {
   // Simulate some processing.
-  //std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
   CommandPtr replay(new Command(command->commandId_));
   replay->topic_ = command->replayTopic_;
