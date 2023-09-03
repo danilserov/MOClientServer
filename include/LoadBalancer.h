@@ -1,9 +1,10 @@
 #pragma once
 
-#include "PubSubServer.h"
-#include "CommandProcessor.h"
-#include "ISubscriber.h"
 #include <shared_mutex>
+
+#include "pubsubserver.h"
+#include "commandprocessor.h"
+#include "isubscriber.h"
 
 class LoadBalancer: public ISubscriber
 {

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "CommandEmitter.h"
-#include "MOStat.h"
+#include "commandemitter.h"
+#include "mostat.h"
 
 using namespace std::chrono_literals;
 

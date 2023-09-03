@@ -1,8 +1,9 @@
 #pragma once
+
 #include <string>
 #include <queue>
-#include <future>
-#include "PubSubServer.h"
+
+#include "pubsubserver.h"
 
 class CommandProcessor
 {

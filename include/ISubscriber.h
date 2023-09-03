@@ -1,5 +1,6 @@
 #pragma once
-#include "Command.h"
+
+#include "command.h"
 
 struct ISubscriber
 {

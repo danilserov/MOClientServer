@@ -1,5 +1,5 @@
 
-#include "LoadBalancer.h"
+#include "loadbalancer.h"
 
 LoadBalancer::LoadBalancer() :
   pubSubServer_(PubSubServer::getInstance())

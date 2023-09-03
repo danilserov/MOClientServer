@@ -1,6 +1,8 @@
 #pragma once
+
 #include <string>
 #include <memory>
+
 class Command
 {
 public:

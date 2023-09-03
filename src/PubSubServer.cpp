@@ -1,4 +1,4 @@
-#include "PubSubServer.h"
+#include "pubsubserver.h"
 
 const std::string PubSubServer::TOPIC_COMMAND = "command";
 PubSubServerPtr PubSubServer::instance_ = nullptr;

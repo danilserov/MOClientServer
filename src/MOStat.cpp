@@ -1,4 +1,4 @@
-#include "MOStat.h"
+#include "mostat.h"
 
 std::atomic_long MOStat::sent_(0);
 std::atomic_long MOStat::received_ (0);

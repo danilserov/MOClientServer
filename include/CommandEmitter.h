@@ -4,9 +4,10 @@
 #include <vector>
 #include <thread>
 #include <condition_variable>
-#include "PubSubServer.h"
-#include "ISubscriber.h"
-#include "Command.h"
+
+#include "pubsubserver.h"
+#include "isubscriber.h"
+#include "command.h"
 
 class CommandEmitter: public ISubscriber
 {

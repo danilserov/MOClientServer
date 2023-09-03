@@ -3,8 +3,8 @@
 #include <fstream>
 #include <queue>
 
-#include "CommandProcessor.h"
-#include "PubSubServer.h"
+#include "commandprocessor.h"
+#include "pubsubserver.h"
 
 
 CommandProcessor::CommandProcessor():

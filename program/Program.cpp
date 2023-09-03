@@ -1,10 +1,11 @@
 ﻿#include <vector>
-#include "Program.h"
-#include "PubSubServer.h"
-#include "CommandProcessor.h"
-#include "LoadBalancer.h"
-#include "CommandEmitter.h"
-#include "MOStat.h"
+
+#include "program.h"
+#include "pubsubserver.h"
+#include "commandprocessor.h"
+#include "loadbalancer.h"
+#include "commandemitter.h"
+#include "mostat.h"
 
 using namespace std::chrono_literals;
 

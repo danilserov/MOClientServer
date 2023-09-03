@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "PubSubServer.h"
-#include "LoadBalancer.h"
-#include "CommandEmitter.h"
-#include "Command.h"
+#include "pubsubserver.h"
+#include "loadbalancer.h"
+#include "commandemitter.h"
+#include "command.h"
 
 TEST(MyTestSuite, LoadBalancerCase) {
   LoadBalancerPtr server(new LoadBalancer());
