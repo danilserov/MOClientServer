@@ -73,7 +73,7 @@ void PubSubServer::Work()
     {
       auto command = commandQueue.front();
       commandQueue.pop();
-      std::shared_lock<std::shared_mutex> shared_lock(mutexSubscribers_);
+      std::shared_lock<std::shared_timed_mutex> shared_lock(mutexSubscribers_);
       auto it = subscribers_.find(command->topic_);
 
       if (it != subscribers_.end())
@@ -110,7 +110,7 @@ void PubSubServer::Publish(CommandPtr command)
 
 void PubSubServer::Subscribe(const std::string& topic, ISubscriber* subscriber)
 {
-  std::unique_lock<std::shared_mutex> lock(mutexSubscribers_);
+  std::unique_lock<std::shared_timed_mutex> lock(mutexSubscribers_);
 
   auto it = subscribers_.find(topic);
 
@@ -126,7 +126,7 @@ void PubSubServer::Subscribe(const std::string& topic, ISubscriber* subscriber)
 
 void PubSubServer::Unsubscribe(const std::string& topic, ISubscriber* subscriber)
 {
-  std::unique_lock<std::shared_mutex> lock(mutexSubscribers_);
+  std::unique_lock<std::shared_timed_mutex> lock(mutexSubscribers_);
 
   auto it = subscribers_.find(topic);
 

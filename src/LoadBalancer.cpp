@@ -17,12 +17,12 @@ LoadBalancer::~LoadBalancer()
 CommandProcessorPtr LoadBalancer::GetAvailableProc()
 {
   int max_score_val = 1000000;
-  int procSize = 0;
+  size_t procSize = 0;
   CommandProcessorPtr retVal = nullptr;
   {
-    std::shared_lock<std::shared_mutex> shared_lock(mutexProc_);
+    std::shared_lock<std::shared_timed_mutex> shared_lock(mutexProc_);
     procSize = commandProcesseros_.size();
-    MOStat::servers_ = procSize;
+    MOStat::servers_ = (long)procSize;
     int procQueue = 0;
 
     for (auto it = commandProcesseros_.begin(); it != commandProcesseros_.end(); it++)
@@ -46,7 +46,7 @@ CommandProcessorPtr LoadBalancer::GetAvailableProc()
       procSize <  std::thread::hardware_concurrency()
   )
   {
-    std::unique_lock<std::shared_mutex> lock(mutexProc_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutexProc_);
     retVal = std::make_shared<CommandProcessor>();
     commandProcesseros_.push_back(retVal);    
   }
@@ -61,7 +61,7 @@ void LoadBalancer::OnReceive(CommandPtr command)
 
 void LoadBalancer::Stop()
 {
-  std::unique_lock<std::shared_mutex> lock(mutexProc_);
+  std::unique_lock<std::shared_timed_mutex> lock(mutexProc_);
   for (auto it = commandProcesseros_.begin(); it != commandProcesseros_.end(); ++it)
   {
     (*it)->Stop();

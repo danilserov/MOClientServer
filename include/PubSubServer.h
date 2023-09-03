@@ -26,7 +26,7 @@ private:
   PubSubServer();
   ~PubSubServer();
   std::unordered_map<std::string, std::unordered_set<ISubscriber*>> subscribers_;
-  std::shared_mutex mutexSubscribers_;
+  std::shared_timed_mutex mutexSubscribers_;
   std::vector<std::thread> threads_;
   std::atomic<bool> stopRequested_;
 
