@@ -49,11 +49,16 @@ int main(int argc, char* argv[])
       {
         std::this_thread::sleep_for(1000ms);
          std::cout 
-           << " queue:" << MOStat::publishedQueue_ << "\t"
-           << " sent:" << MOStat::sent_ << "\t"
-           << " received:" << MOStat::received_ << "\t"
-           << " procs:" << MOStat::servers_ << "\t"
-           << " procQueue:" << MOStat::procQueue_ << "\t"
+           << "PubQueue:" << MOStat::publishedQueue_ << "\t"
+           << "Sent:" << MOStat::sent_ << "\t"
+           << "Received:" << MOStat::received_ << "\t"
+           << "Procs:" << MOStat::servers_ << "\t"
+           << "ProcQueue:" << MOStat::procQueue_ << "\t"
+
+           << "RoundTripMax["
+           << "Sync:" << MOStat::maxSyncTime_ << "\t"
+           << "Async:" << MOStat::maxAsyncTime_ << "]\t"
+           
            
            << std::endl;
       }

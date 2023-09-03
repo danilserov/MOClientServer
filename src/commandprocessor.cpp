@@ -64,17 +64,25 @@ void CommandProcessor::Work()
 
 CommandPtr CommandProcessor::ProcessCommand(CommandPtr command)
 {
-  // Simulate some processing.
-  std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
   CommandPtr replay(new Command(command->commandId_));
   replay->topic_ = command->replayTopic_;
 
   if (command->payload_ == "TODO")
   {
-    replay->payload_ = "REPLAY";
+    replay->payload_ = "REPLAY_TODO";
+    // Simulate some processing.
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  }
+  else if (command->payload_ == "SYNC_TODO")
+  {
+    replay->payload_ = "REPLAY_SYNC_TODO";
+  }
+  else
+  {
+    replay->payload_ = "UNKNOWN_COMMAND_RECEIVED";
   }
   
+  replay->timestamp_ = command->timestamp_;
   return replay;
 }
 

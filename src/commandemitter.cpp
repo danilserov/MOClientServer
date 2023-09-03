@@ -39,6 +39,24 @@ void CommandEmitter::OnReceive(CommandPtr command)
     syncResult_ = command;
     conditionSyncReceived_.notify_one();
   }
+
+  auto duration = Command::GetTimeStamp() - command->timestamp_;
+
+  if (command->payload_ == "REPLAY_TODO")
+  {    
+    if (MOStat::maxAsyncTime_ < duration)
+    {
+      MOStat::maxAsyncTime_ = duration;
+    }
+  }
+
+  if (command->payload_ == "REPLAY_SYNC_TODO")
+  {
+    if (MOStat::maxSyncTime_ < duration)
+    {
+      MOStat::maxSyncTime_ = duration;
+    }
+  }
 }
 
 CommandPtr CommandEmitter::ExecuteSync(CommandPtr command)
@@ -46,6 +64,7 @@ CommandPtr CommandEmitter::ExecuteSync(CommandPtr command)
   CommandPtr result = nullptr;  
 
   command->replayTopic_ = client_id_;
+  command->payload_ = "SYNC_TODO";
   syncCommandId_ = command->commandId_;
   pubSubServer_->Publish(command);
 
