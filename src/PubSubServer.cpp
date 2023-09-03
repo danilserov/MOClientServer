@@ -1,5 +1,3 @@
-#pragma once
-
 #include "PubSubServer.h"
 
 const std::string PubSubServer::TOPIC_COMMAND = "command";

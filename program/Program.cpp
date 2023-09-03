@@ -1,6 +1,4 @@
-﻿// CommandEmitter.cpp : Defines the entry point for the application.
-//
-#include <vector>
+﻿#include <vector>
 #include "Program.h"
 #include "PubSubServer.h"
 #include "CommandProcessor.h"
