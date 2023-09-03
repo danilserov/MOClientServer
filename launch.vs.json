@@ -5,8 +5,8 @@
     {
       "type": "default",
       "project": "CMakeLists.txt",
-      "projectTarget": "MOClientServer.exe",
-      "name": "MOClientServer.exe (with params)",
+      "projectTarget": "moclientserver.exe",
+      "name": "moclientserver.exe (with params)",
       "args": [
         10
       ]

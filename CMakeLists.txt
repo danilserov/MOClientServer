@@ -9,7 +9,7 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-project ("MOClientServer")
+project ("moclientserver")
 
 include_directories(include)
 file(GLOB SOURCES src/*.cpp)
@@ -17,13 +17,13 @@ file(GLOB HEADERS include/*.h)
 file(GLOB PROGRAM program/*.h program/*.cpp)
 
 # Add source to this project's executable.
-add_executable (MOClientServer 
+add_executable (moclientserver 
 ${SOURCES}
 ${HEADERS}
 ${PROGRAM}
 )
 
-set_property(TARGET MOClientServer PROPERTY CXX_STANDARD 14)
+set_property(TARGET moclientserver PROPERTY CXX_STANDARD 14)
 
 # Add tests and install targets if needed.
 
@@ -49,14 +49,14 @@ ENDIF ()
 enable_testing()
 
 file(GLOB TESTS tests/*.cpp)
-add_executable(MyTests 
+add_executable(motests 
 ${TESTS}
 ${SOURCES}
 ${HEADERS}
 )
 
-target_link_libraries(MyTests GTest::gtest_main)
+target_link_libraries(motests GTest::gtest_main)
 
-add_test(NAME MyTest COMMAND MyTests)
+add_test(NAME motests COMMAND MyTests)
 
 
