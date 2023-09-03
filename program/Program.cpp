@@ -4,6 +4,7 @@
 #include "CommandProcessor.h"
 #include "LoadBalancer.h"
 #include "CommandEmitter.h"
+#include "MOStat.h"
 
 using namespace std::chrono_literals;
 
