@@ -2,7 +2,7 @@
 
 #include "PubSubServer.h"
 #include "CommandProcessor.h"
-#include "ISubScriber.h"
+#include "ISubscriber.h"
 #include <shared_mutex>
 
 class LoadBalancer: public ISubscriber
