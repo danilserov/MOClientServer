@@ -2,5 +2,10 @@
     "files.associations": {
         "condition_variable": "cpp",
         "atomic": "cpp"
+    },
+    "cmake.debugConfig": {
+        "args": [
+            "2"
+        ]
     }
 }
