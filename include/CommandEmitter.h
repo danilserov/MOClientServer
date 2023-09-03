@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <condition_variable>
 #include "PubSubServer.h"
 #include "ISubscriber.h"
 #include "Command.h"
