@@ -21,8 +21,8 @@ class PubSubServer
 {
 public:
   static const std::string TOPIC_COMMAND;
-  static const int MAX_QUEUE = 10000;
-  static const int APROX_SERVER_DELAY = 10;
+  static const int MAX_QUEUE;
+  static const int APROX_SERVER_DELAY;
 private:
   static PubSubServerPtr instance_;
   PubSubServer();

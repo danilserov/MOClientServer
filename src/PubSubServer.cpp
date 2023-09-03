@@ -3,6 +3,9 @@
 const std::string PubSubServer::TOPIC_COMMAND = "command";
 PubSubServerPtr PubSubServer::instance_ = nullptr;
 
+const int PubSubServer::APROX_SERVER_DELAY = 10;
+const int PubSubServer::MAX_QUEUE = 10000;
+
 void PubSubServer::CustomDeleter(PubSubServer* ptr)
 {
   delete ptr;
