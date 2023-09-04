@@ -17,12 +17,19 @@ int main(int argc, char* argv[])
 
   if (argc < 2)
   {
-    std::cerr << "Usage: MOClientServer <num_of_clients>" << std::endl;
+    std::cerr << "Usage: MOClientServer <num_of_clients> <num_of_commands_per_client" << std::endl;
     std::cout << "will create: " << numOfClients << " clients by default" << std::endl;
   }
   else
   {
     numOfClients = atoi(argv[1]);
+  }
+
+  int numOfMessages = 1000000;
+
+  if (argc > 2)
+  {
+    numOfMessages = atoi(argv[2]);
   }
 
 
@@ -35,7 +42,7 @@ int main(int argc, char* argv[])
   {
     clients.push_back(
     CommandEmitterPtr(
-        new CommandEmitter("client_" + std::to_string(i))
+        new CommandEmitter("client_" + std::to_string(i), numOfMessages)
       )
     );
   }
@@ -61,6 +68,8 @@ int main(int argc, char* argv[])
            
            
            << std::endl;
+         MOStat::maxSyncTime_.store(0);
+         MOStat::maxAsyncTime_.store(0);
       }
     }
 

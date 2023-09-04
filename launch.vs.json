@@ -8,7 +8,8 @@
       "projectTarget": "moclientserver.exe",
       "name": "moclientserver.exe (with params)",
       "args": [
-        10
+        10,
+        1000
       ]
     }
   ]

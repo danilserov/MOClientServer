@@ -12,17 +12,19 @@
 class CommandEmitter: public ISubscriber
 {
 private:
+  std::atomic_int numOfMessagesMax_;
   std::string client_id_;
   std::thread thread_;
   std::shared_ptr<PubSubServer> pubSubServer_;
   std::atomic<long> curCommandId;
 public:
   const int SYNC_SEND_TIMEOUT_SEC = 10;
-  CommandEmitter(const std::string& client_id);
+  CommandEmitter(const std::string& client_id, int numOfMessagesMax);
   ~CommandEmitter();
   void Stop();
   CommandPtr ExecuteSync(CommandPtr command);
 private:
+  void Publish(CommandPtr command);
   bool stopRequested_;
   void Work();
   void OnReceive(CommandPtr command) override;  

@@ -39,6 +39,8 @@ void CommandProcessor::Work()
 {
   while (!stopRequested_)
   {
+    std::queue<CommandPtr> commandQueue;
+
     CommandPtr command = nullptr;
     {
       std::unique_lock<std::mutex> lock(mutexQueue_);
@@ -50,13 +52,13 @@ void CommandProcessor::Work()
       {
         continue;
       }
-      command = commandQueue_.front();
-      commandQueue_.pop();
+      std::swap(commandQueue, commandQueue_);
     }
 
-    if (command != nullptr)
+    while (!commandQueue.empty())
     {
-      auto replay = ProcessCommand(command);
+      auto replay = ProcessCommand(commandQueue.front());
+      commandQueue.pop();
       pubSubServer_->Publish(replay);
     }
   }
@@ -64,13 +66,14 @@ void CommandProcessor::Work()
 
 CommandPtr CommandProcessor::ProcessCommand(CommandPtr command) const
 {
+  // Simulate some processing.
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
   std::string replayPayload = "UNKNOWN_COMMAND_RECEIVED";
 
   if (command->payload_ == "TODO")
   {
-    replayPayload = "REPLAY_TODO";
-    // Simulate some processing.
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    replayPayload = "REPLAY_TODO";    
   }
   else if (command->payload_ == "SYNC_TODO")
   {

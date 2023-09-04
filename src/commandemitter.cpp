@@ -6,11 +6,12 @@
 using namespace std::chrono_literals;
 
 
-CommandEmitter::CommandEmitter(const std::string& client_id):
+CommandEmitter::CommandEmitter(const std::string& client_id, int numOfMessagesMax):
   stopRequested_(false),
   client_id_(client_id),
   curCommandId(0),
   syncResult_(nullptr),
+  numOfMessagesMax_(numOfMessagesMax),
   pubSubServer_(PubSubServer::getInstance())
 {
   pubSubServer_->
@@ -59,6 +60,12 @@ void CommandEmitter::OnReceive(CommandPtr command)
   }
 }
 
+void CommandEmitter::Publish(CommandPtr command)
+{
+  MOStat::sent_++;
+  pubSubServer_->Publish(command);
+}
+
 CommandPtr CommandEmitter::ExecuteSync(CommandPtr command)
 {
   CommandPtr result = nullptr;  
@@ -66,11 +73,9 @@ CommandPtr CommandEmitter::ExecuteSync(CommandPtr command)
   command->replayTopic_ = client_id_;
   command->payload_ = "SYNC_TODO";
   syncCommandId_ = command->commandId_;
-  pubSubServer_->Publish(command);
+  Publish(command);
 
   std::unique_lock<std::mutex> lock(mutexSyncSend_);
-  MOStat::sent_++;  
-
   auto timeout = std::chrono::steady_clock::now() + std::chrono::seconds(SYNC_SEND_TIMEOUT_SEC);
 
   conditionSyncReceived_.wait_until(lock, timeout, [this] {
@@ -84,22 +89,23 @@ CommandPtr CommandEmitter::ExecuteSync(CommandPtr command)
 
 void CommandEmitter::Work()
 {
-  while (!stopRequested_)
+  while (!stopRequested_ 
+    && numOfMessagesMax_ > MOStat::sent_
+    )
   {
     CommandPtr command(new Command(curCommandId++));
     command->replayTopic_ = client_id_;
     command->payload_ = "TODO";
     command->topic_ = PubSubServer::TOPIC_COMMAND;
     
-    MOStat::sent_++;
-
-    if (MOStat::sent_ % 10 == 0)
+    if (MOStat::sent_ % 100 == 0)
     {
       ExecuteSync(command);
+      Publish(command);
     }
     else
     {
-      pubSubServer_->Publish(command);
+      Publish(command);
     }
     //std::this_thread::sleep_for(1ms);
   }

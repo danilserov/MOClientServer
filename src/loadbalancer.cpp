@@ -40,8 +40,6 @@ CommandProcessorPtr LoadBalancer::GetAvailableProc()
     MOStat::procQueue_ = procQueue;
   }
 
-  const int NORMAL_BUSY_SCORE = 50;
-
   if (
       (retVal == nullptr || retVal->GetBusyScore() > NORMAL_BUSY_SCORE) &&
       procSize <  std::thread::hardware_concurrency()
@@ -58,6 +56,11 @@ void LoadBalancer::OnReceive(CommandPtr command)
 {
   auto proc = GetAvailableProc();
   proc->AddCommand(command);
+
+  if (proc->GetBusyScore() > NORMAL_BUSY_SCORE)
+  {
+    std::this_thread::sleep_for(std::chrono::milliseconds(PubSubServer::APROX_SERVER_DELAY));
+  }
 }
 
 void LoadBalancer::Stop()

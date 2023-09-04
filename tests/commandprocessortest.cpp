@@ -8,7 +8,7 @@
 TEST(motestsSuite, LoadBalancerCase) {
   LoadBalancerPtr server(new LoadBalancer());
   CommandEmitterPtr client(
-    new CommandEmitter("test_sync_client")
+    new CommandEmitter("test_sync_client", 1)
   );
 
   long command_id = 1234567;

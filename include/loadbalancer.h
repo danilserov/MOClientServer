@@ -9,6 +9,7 @@
 class LoadBalancer: public ISubscriber
 {
 private:
+  const int NORMAL_BUSY_SCORE = 50;
   std::vector<CommandProcessorPtr> commandProcesseros_;
   std::shared_timed_mutex mutexProc_;
 private:

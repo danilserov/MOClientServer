@@ -4,7 +4,7 @@ const std::string PubSubServer::TOPIC_COMMAND = "command";
 PubSubServerPtr PubSubServer::instance_ = nullptr;
 
 const int PubSubServer::APROX_SERVER_DELAY = 10;
-const int PubSubServer::MAX_QUEUE = 10000;
+const int PubSubServer::MAX_QUEUE = 2000;
 
 void PubSubServer::CustomDeleter(PubSubServer* ptr)
 {
@@ -65,9 +65,17 @@ void PubSubServer::Work()
       {
         continue;
       }
-      MOStat::publishedQueue_ = (long)commandQueue_.size();
 
-      std::swap(commandQueue, commandQueue_);      
+      int maxForProc = 100;
+
+      while (!commandQueue_.empty() && (--maxForProc) > 0)
+      {
+        commandQueue.push(commandQueue_.front());
+        commandQueue_.pop();
+      }
+      MOStat::publishedQueue_ = (long)commandQueue_.size();
+      
+      //std::swap(commandQueue, commandQueue_);      
     }
 
     while (!commandQueue.empty())
@@ -95,6 +103,7 @@ void PubSubServer::Publish(CommandPtr command)
     return;
   }
 
+  bool bBusy = false;
   {
     std::lock_guard<std::mutex> lock(mutexQueue_);
     commandQueue_.push(command);
@@ -102,11 +111,16 @@ void PubSubServer::Publish(CommandPtr command)
 
     if (commandQueue_.size() > MAX_QUEUE && !command->replayTopic_.empty())
     {
-      std::this_thread::sleep_for(std::chrono::milliseconds(PubSubServer::APROX_SERVER_DELAY));
+      bBusy = true;
     }
   }
   
   conditionQueue_.notify_one();
+
+  if (bBusy)
+  {
+    std::this_thread::sleep_for(std::chrono::milliseconds(PubSubServer::APROX_SERVER_DELAY));
+  }
 }
 
 void PubSubServer::Subscribe(const std::string& topic, ISubscriber* subscriber)
