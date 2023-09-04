@@ -57,6 +57,6 @@ ${HEADERS}
 
 target_link_libraries(motests GTest::gtest_main)
 
-add_test(NAME motests COMMAND MyTests)
+add_test(NAME motests COMMAND motests)
 
 

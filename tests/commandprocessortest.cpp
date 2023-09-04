@@ -5,7 +5,7 @@
 #include "commandemitter.h"
 #include "command.h"
 
-TEST(MyTestSuite, LoadBalancerCase) {
+TEST(motestsSuite, LoadBalancerCase) {
   LoadBalancerPtr server(new LoadBalancer());
   CommandEmitterPtr client(
     new CommandEmitter("test_sync_client")
@@ -20,7 +20,7 @@ TEST(MyTestSuite, LoadBalancerCase) {
   EXPECT_EQ(replay->commandId_, command_id);
 }
 
-TEST(MyTestSuite, CommandProcessorCase) {
+TEST(motestsSuite, CommandProcessorCase) {
 
   CommandProcessorDecorator server;
 
