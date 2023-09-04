@@ -46,7 +46,7 @@ void CommandEmitter::OnReceive(CommandPtr command)
   {    
     if (MOStat::maxAsyncTime_ < duration)
     {
-      MOStat::maxAsyncTime_ = duration;
+      MOStat::maxAsyncTime_ = (long)duration;
     }
   }
 
@@ -54,7 +54,7 @@ void CommandEmitter::OnReceive(CommandPtr command)
   {
     if (MOStat::maxSyncTime_ < duration)
     {
-      MOStat::maxSyncTime_ = duration;
+      MOStat::maxSyncTime_ = (long)duration;
     }
   }
 }

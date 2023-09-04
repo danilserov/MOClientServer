@@ -4,6 +4,9 @@
 #include <memory>
 #include <chrono>
 
+class Command;
+typedef std::shared_ptr<Command> CommandPtr;
+
 class Command
 {
 public:
@@ -22,9 +25,18 @@ public:
   {
     auto current_time = std::chrono::system_clock::now();
     std::chrono::milliseconds timestamp =
-      std::chrono::duration_cast<std::chrono::milliseconds>(current_time.time_since_epoch());
+      std::chrono::duration_cast<std::chrono::milliseconds>(
+        current_time.time_since_epoch()
+      );
     return timestamp.count();
   }
-};
 
-typedef std::shared_ptr<Command> CommandPtr;
+  CommandPtr CreateReplay(const std::string& payload)
+  {
+    CommandPtr replay(new Command(commandId_));
+    replay->topic_ = replayTopic_;
+    replay->timestamp_ = timestamp_;
+    replay->payload_ = payload;
+    return replay;
+  }
+};
