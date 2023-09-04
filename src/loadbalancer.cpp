@@ -40,9 +40,10 @@ CommandProcessorPtr LoadBalancer::GetAvailableProc()
     MOStat::procQueue_ = procQueue;
   }
 
+  const int NORMAL_BUSY_SCORE = 50;
 
   if (
-      (retVal == nullptr || retVal->GetBusyScore() > 10) &&
+      (retVal == nullptr || retVal->GetBusyScore() > NORMAL_BUSY_SCORE) &&
       procSize <  std::thread::hardware_concurrency()
   )
   {
