@@ -34,8 +34,11 @@ private:
   std::atomic<bool> stopRequested_;
 
   std::condition_variable conditionQueue_;
-  std::queue<CommandPtr> commandQueue_;
   std::mutex mutexQueue_;
+  std::queue<CommandPtr> commandQueue_;
+
+  std::condition_variable conditionQueueReady_;
+  std::mutex mutexQueueReady_;  
 
   static void CustomDeleter (PubSubServer* ptr);
   void Work();

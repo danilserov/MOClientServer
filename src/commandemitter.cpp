@@ -107,7 +107,6 @@ void CommandEmitter::Work()
     {
       Publish(command);
     }
-    //std::this_thread::sleep_for(1ms);
   }
 }
 

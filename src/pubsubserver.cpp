@@ -74,8 +74,11 @@ void PubSubServer::Work()
         commandQueue_.pop();
       }
       MOStat::publishedQueue_ = (long)commandQueue_.size();
-      
-      //std::swap(commandQueue, commandQueue_);      
+
+      if (commandQueue_.size() < MAX_QUEUE)
+      {
+        conditionQueueReady_.notify_all();
+      }
     }
 
     while (!commandQueue.empty())
@@ -119,7 +122,10 @@ void PubSubServer::Publish(CommandPtr command)
 
   if (bBusy)
   {
-    std::this_thread::sleep_for(std::chrono::milliseconds(PubSubServer::APROX_SERVER_DELAY));
+    std::unique_lock<std::mutex> lock(mutexQueueReady_);
+    auto timeout = std::chrono::steady_clock::now() + 
+      std::chrono::milliseconds(PubSubServer::APROX_SERVER_DELAY);
+    conditionQueueReady_.wait_until(lock, timeout);
   }
 }
 

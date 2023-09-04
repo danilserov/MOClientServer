@@ -59,6 +59,7 @@ void LoadBalancer::OnReceive(CommandPtr command)
 
   if (proc->GetBusyScore() > NORMAL_BUSY_SCORE)
   {
+    //As a general rule, we need to create a better waiting mechanism here. But this will do the job.
     std::this_thread::sleep_for(std::chrono::milliseconds(PubSubServer::APROX_SERVER_DELAY));
   }
 }
