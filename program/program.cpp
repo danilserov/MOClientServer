@@ -48,14 +48,22 @@ int main(int argc, char* argv[])
       commandIds[clients[i]->GetClientId()].push_back(
         clients[i]->CosAsync(i + j)
       );
-      /*try
+    }
+  }
+
+  for (int j = 0; j < numOfMessages; j++)
+  {
+    for (int i = 0; i < numOfClients; i++)
+    {
+      try
       {
-        auto res = clients[i]->Cos(j);
+        auto res = clients[i]->Cos(j + i);
+        std::cout << "cos("<< j + i<<")="<< res << std::endl;
       }
       catch (const std::exception& ex)
       {
         std::cerr << ex.what() << std::endl;
-      }*/
+      }
     }
   }
 
@@ -67,46 +75,29 @@ int main(int argc, char* argv[])
     {
       auto result = (*it)->GetResult(*itCommand);
 
-      std::cout << "result of " << *itCommand  << "=" << result << std::endl;
+      std::cout << "result of command[" << *itCommand  << "]=" << result << std::endl;
     }
   }
 
-  std::cout << "enter to exit" << std::endl;
+  std::cout 
+    << "Sent:" << MOStat::sent_ << "\t"
+    << "Received:" << MOStat::received_ << "\t"
+    << "Procs:" << MOStat::servers_ << "\t"
 
-  bool requestedToStop = false;
-  std::thread t([&]()
-    {
-      while (!requestedToStop)
-      {
-        std::this_thread::sleep_for(1000ms);
-         std::cout 
-           << "PubQueue:" << MOStat::publishedQueue_ << "\t"
-           << "Sent:" << MOStat::sent_ << "\t"
-           << "Received:" << MOStat::received_ << "\t"
-           << "Procs:" << MOStat::servers_ << "\t"
-           << "ProcQueue:" << MOStat::procQueue_ << "\t"
-
-           << "RoundTripMax["
-           << "Sync:" << MOStat::maxSyncTime_ << "\t"
-           << "Async:" << MOStat::maxAsyncTime_ << "]\t"
+    << "RoundTripMax["
+    << "Sync:" << MOStat::maxSyncTime_ << "\t"
+    << "Async:" << MOStat::maxAsyncTime_ << "]\t"
            
            
-           << std::endl;
-         MOStat::maxSyncTime_.store(0);
-         MOStat::maxAsyncTime_.store(0);
-      }
-    }
-
-  );
-
-  std::cin.get();
-  requestedToStop = true;
-  t.join();
+    << std::endl;
+         
 
   for (auto it = clients.begin(); it != clients.end(); it++)
   {
     (*it)->Stop();
   }
 
+  std::cout << "enter to exit" << std::endl;
+  std::cin.get();
 	return 0;
 }

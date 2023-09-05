@@ -2,9 +2,7 @@
 
 std::atomic_int MOStat::sent_(0);
 std::atomic_int MOStat::received_ (0);
-std::atomic_int MOStat::publishedQueue_ (0);
 std::atomic_int MOStat::servers_ (0);
-std::atomic_int MOStat::procQueue_ (0);
 
 std::atomic_int MOStat::maxAsyncTime_(0);
 std::atomic_int MOStat::maxSyncTime_(0);

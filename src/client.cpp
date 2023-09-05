@@ -63,17 +63,31 @@ void Client::Work()
       continue;
     }
 
+    MOStat::received_ += results.size();
+
     for (auto it = results.begin(); it != results.end(); it++)
-    {
+    { 
+      auto duration = Command::GetTimeStamp() - (*it)->timestamp_;
+
       if ((*it)->commandId_ == syncCommandId_)
       {
         syncResult_ = *it;
         conditionSyncReceived_.notify_one();
+
+        if (MOStat::maxSyncTime_ < duration)
+        {
+          MOStat::maxSyncTime_ = duration;
+        }        
       }
       else
       {
+        if (MOStat::maxAsyncTime_ < duration)
+        {
+          MOStat::maxAsyncTime_ = duration;
+        }
+
         std::lock_guard<std::mutex> lock(mutexAsyncResult_);
-        results_[(*it)->commandId_] = (*it);
+        results_[(*it)->commandId_] = (*it);        
       }
     }
     conditionAsyncReceived_.notify_all();

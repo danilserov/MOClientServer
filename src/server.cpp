@@ -50,8 +50,6 @@ CommandProcessorPtr Server::GetAvailableProc()
         retVal = *it;
       }
     }
-
-    MOStat::procQueue_ = procQueue;
   }
 
   if (
