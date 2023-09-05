@@ -5,6 +5,7 @@
 #include <thread>
 #include <unordered_map>
 #include <condition_variable>
+#include <atomic>
 
 #include "server.h"
 #include "command.h"

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 #include "client.h"
 #include "mostat.h"
 
@@ -104,7 +105,7 @@ double Client::Sin(double a)
 
   if (result == nullptr)
   {
-    throw::std::exception("wrong result");
+    throw std::runtime_error("wrong result");
   }
   //std::cout << "sin " << a << "=" << result->payload_ << std::endl;
   return result->payload_;
@@ -119,7 +120,7 @@ double Client::Cos(double a)
 
   if (result == nullptr)
   {
-    throw::std::exception("wrong result");
+    throw std::runtime_error("wrong result");
   }
   //std::cout << "cos " << a << "=" << result->payload_ << std::endl;
   return result->payload_;
