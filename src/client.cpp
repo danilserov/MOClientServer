@@ -5,15 +5,14 @@
 
 using namespace std::chrono_literals;
 
-
-Client::Client(const std::string& client_id):
+Client::Client(const int client_id):
   stopRequested_(false),
   client_id_(client_id),
-  curCommandId(0),
   syncResult_(nullptr),
+  syncCommandId_(-1),
   server_(Server::getInstance())
 {
-  if (client_id != "test_sync_client")
+  if (client_id >= 0)
   {
     thread_ =
       std::thread(&Client::Work, this);
@@ -25,31 +24,20 @@ Client::~Client()
   Stop();
 }
 
-void Client::OnReceive(CommandPtr command)
+void Client::Send(CommandPtr command)
 {
-  MOStat::received_++;
-
-  if (syncCommandId_ == command->commandId_)
-  {
-    syncResult_ = command;
-    conditionSyncReceived_.notify_one();
-  }
-
-  auto duration = Command::GetTimeStamp() - command->timestamp_;
-}
-
-void Client::Publish(CommandPtr command)
-{
-  MOStat::sent_++;
+  command->clientId_ = client_id_;
+  command->commandId_ = MOStat::sent_++;
+  server_->ExecuteCommand(command);
 }
 
 CommandPtr Client::ExecuteSync(CommandPtr command)
 {
   CommandPtr result = nullptr;  
+   
+  Send(command);
 
-  command->payload_ = 50;
   syncCommandId_ = command->commandId_;
-  Publish(command);
 
   std::unique_lock<std::mutex> lock(mutexSyncSend_);
   auto timeout = std::chrono::steady_clock::now() + std::chrono::seconds(SYNC_SEND_TIMEOUT_SEC);
@@ -67,43 +55,102 @@ void Client::Work()
 {
   while (!stopRequested_)
   {
-    CommandPtr command(new Command(curCommandId++));
+    auto results = server_->GetReadyResults(client_id_);
 
-    command->payload_ = 50;
-    command->topic_ = Command::TODO_SIN;
-    
-    if (MOStat::sent_ % 100 == 0)
+    if (results.empty())
     {
-      ExecuteSync(command);
-      Publish(command);
+      std::this_thread::sleep_for(1ms);
+      continue;
     }
-    else
+
+    for (auto it = results.begin(); it != results.end(); it++)
     {
-      Publish(command);
+      if ((*it)->commandId_ == syncCommandId_)
+      {
+        syncResult_ = *it;
+        conditionSyncReceived_.notify_one();
+      }
+      else
+      {
+        std::lock_guard<std::mutex> lock(mutexAsyncResult_);
+        results_[(*it)->commandId_] = (*it);
+      }
     }
+    conditionAsyncReceived_.notify_all();
   }
 }
 
 double Client::Sin(double a)
 {
-  return 0;
+  CommandPtr command = std::make_shared<Command>(0);
+  command->payload_ = a;
+  command->commandType = Command::TODO_SIN;
+  auto result = ExecuteSync(command);
+
+  if (result == nullptr)
+  {
+    throw::std::exception("wrong result");
+  }
+  //std::cout << "sin " << a << "=" << result->payload_ << std::endl;
+  return result->payload_;
 }
+
 double Client::Cos(double a)
 {
-  return 0;
+  CommandPtr command = std::make_shared<Command>(0);
+  command->payload_ = a;
+  command->commandType = Command::TODO_COS;
+  auto result = ExecuteSync(command);
+
+  if (result == nullptr)
+  {
+    throw::std::exception("wrong result");
+  }
+  //std::cout << "cos " << a << "=" << result->payload_ << std::endl;
+  return result->payload_;
 }
+
 int Client::SinAsync(double a)
 {
-  return 0;
+  CommandPtr command = std::make_shared<Command>(0);
+  command->payload_ = a;
+  command->commandType = Command::TODO_SIN;
+  Send(command);
+  return command->commandId_;
 }
 int Client::CosAsync(double a)
 {
-  return 0;
+  CommandPtr command = std::make_shared<Command>(0);
+  command->payload_ = a;
+  command->commandType = Command::TODO_COS;
+  Send(command);
+  return command->commandId_;
+}
+
+bool Client::DoGetResult(int command_id, double& result)
+{
+  std::lock_guard<std::mutex> lock(mutexAsyncResult_);
+  auto it = results_.find(command_id);
+
+  if (it != results_.end())
+  {
+    result = it->second->payload_;
+    return true;
+  }
+
+  return false;
 }
 
 double Client::GetResult(int command_id)
 {
-  return 0;
+  double res;
+
+  while (!DoGetResult(command_id, res))
+  {
+    std::unique_lock<std::mutex> lock(mutexAsyncResult_);
+    conditionAsyncReceived_.wait(lock);
+  }  
+  return res;
 }
 
 void Client::Stop()

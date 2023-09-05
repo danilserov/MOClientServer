@@ -71,7 +71,7 @@ CommandPtr CommandProcessor::ProcessCommand(CommandPtr command) const
 
   double replayPayload = 0;
 
-  if (command->topic_ == Command::TODO_COS)
+  if (command->commandType == Command::TODO_COS)
   {
     replayPayload = std::cos(command->payload_);    
   }

@@ -17,13 +17,15 @@ public:
   };
 
   explicit Command(long command_id):
-    commandId_(command_id)
+    commandId_(command_id),
+    clientId_(-1)
   {
     timestamp_ = GetTimeStamp();
   }
-  E_COMMAND topic_;
+  E_COMMAND commandType;
   double payload_;
-  long commandId_ = 0;
+  int commandId_;
+  int clientId_;
   long long timestamp_;
 
   static long long GetTimeStamp()
@@ -41,6 +43,7 @@ public:
     CommandPtr replay(new Command(commandId_));
     replay->timestamp_ = timestamp_;
     replay->payload_ = payload;
+    replay->clientId_ = clientId_;
     return replay;
   }
 };

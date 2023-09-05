@@ -1,10 +1,10 @@
 #include "mostat.h"
 
-std::atomic_long MOStat::sent_(0);
-std::atomic_long MOStat::received_ (0);
-std::atomic_long MOStat::publishedQueue_ (0);
-std::atomic_long MOStat::servers_ (0);
-std::atomic_long MOStat::procQueue_ (0);
+std::atomic_int MOStat::sent_(0);
+std::atomic_int MOStat::received_ (0);
+std::atomic_int MOStat::publishedQueue_ (0);
+std::atomic_int MOStat::servers_ (0);
+std::atomic_int MOStat::procQueue_ (0);
 
-std::atomic_long MOStat::maxAsyncTime_(0);
-std::atomic_long MOStat::maxSyncTime_(0);
+std::atomic_int MOStat::maxAsyncTime_(0);
+std::atomic_int MOStat::maxSyncTime_(0);

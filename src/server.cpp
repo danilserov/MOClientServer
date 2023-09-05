@@ -66,7 +66,7 @@ CommandProcessorPtr Server::GetAvailableProc()
   return retVal;
 }
 
-void Server::OnReceive(CommandPtr command)
+void Server::ExecuteCommand(CommandPtr command)
 {
   auto proc = GetAvailableProc();
   proc->AddCommand(command);
@@ -78,10 +78,55 @@ void Server::OnReceive(CommandPtr command)
   }
 }
 
+std::shared_ptr<std::condition_variable> Server::GetClientWaiter(int client_id)
+{
+  std::shared_ptr<std::condition_variable> clientReady = nullptr;
+  {
+    std::lock_guard<std::mutex> lock(mutexResults_);
+    auto condVar = resultsReadyCond_.find(client_id);
+
+    if (condVar != resultsReadyCond_.end())
+    {
+      clientReady = condVar->second;
+    }
+    else
+    {
+      clientReady = std::make_shared<std::condition_variable>();
+      resultsReadyCond_[client_id] = clientReady;
+    }
+  }
+  return clientReady;
+}
+
 void Server::OnAnswerReady(CommandPtr command)
 {
+  auto clientReady = GetClientWaiter(command->clientId_);
+  {
+    std::lock_guard<std::mutex> lock(mutexResults_);
+    results_[command->clientId_].push_back(command);  
+  }
 
+  if (clientReady)
+  {
+    clientReady->notify_all();
+  }  
 }
+
+std::vector<CommandPtr> Server::GetReadyResults(int client_id)
+{
+  {
+    auto clientReady = GetClientWaiter(client_id);
+    std::unique_lock<std::mutex> lock(mutexResults_);
+    auto timeout = std::chrono::steady_clock::now() + std::chrono::microseconds(10);
+    clientReady->wait_until(lock, timeout);
+  }
+
+  std::vector<CommandPtr> retVal;
+  std::lock_guard<std::mutex> lock(mutexResults_);
+  std::swap(results_[client_id], retVal);
+  return retVal;
+}
+
 void Server::Stop()
 {
   std::unique_lock<std::shared_timed_mutex> lock(mutexProc_);

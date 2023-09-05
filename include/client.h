@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <unordered_map>
 #include <condition_variable>
 
 #include "server.h"
@@ -11,13 +12,12 @@
 class Client
 {
 private:
-  std::string client_id_;
+  int client_id_;
   std::thread thread_;
   ServerPtr server_;
-  std::atomic<long> curCommandId;
 public:
   const int SYNC_SEND_TIMEOUT_SEC = 10;
-  Client(const std::string& client_id);
+  Client(const int client_id);
   ~Client();
   void Stop();
   double Sin(double a);
@@ -26,14 +26,21 @@ public:
   int CosAsync(double a);
   double GetResult(int command_id);
   CommandPtr ExecuteSync(CommandPtr command);
-private:  
-  void Publish(CommandPtr command);
+  int GetClientId() const
+  {
+    return client_id_;
+  }
+private:
+  bool DoGetResult(int command_id, double& result);
+  std::unordered_map<int, CommandPtr> results_;
+  std::mutex mutexAsyncResult_;
+  std::condition_variable conditionAsyncReceived_;
+  void Send(CommandPtr command);
   bool stopRequested_;
   void Work();
-  void OnReceive(CommandPtr command);  
 private:
   std::condition_variable conditionSyncReceived_;
-  std::atomic<long> syncCommandId_;
+  std::atomic_int syncCommandId_;
   CommandPtr syncResult_;
   std::mutex mutexSyncSend_;
 };

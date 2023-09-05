@@ -12,7 +12,7 @@ typedef std::shared_ptr<Server> ServerPtr;
 
 class CommandProcessor
 {
-  friend class CommandProcessorDecorator;
+  friend class CommandProcessorDecorator;  
 private:
   ServerPtr parentServer_;
   std::thread thread_;

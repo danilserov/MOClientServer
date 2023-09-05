@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
     numOfClients = atoi(argv[1]);
   }
 
-  int numOfMessages = 1000;
+  int numOfMessages = 10;
 
   if (argc > 2)
   {
@@ -36,11 +36,39 @@ int main(int argc, char* argv[])
 
   for (int i = 0; i < numOfClients; i++)
   {
-    clients.push_back(
-    ClientPtr(
-        new Client("client_" + std::to_string(i))
-      )
-    );
+    clients.push_back(ClientPtr(new Client(i)));
+  }
+
+  std::unordered_map<int, std::vector<int>> commandIds;
+
+  for (int j = 0; j < numOfMessages; j++)
+  {
+    for (int i = 0; i < numOfClients; i++)
+    {
+      commandIds[clients[i]->GetClientId()].push_back(
+        clients[i]->CosAsync(i + j)
+      );
+      /*try
+      {
+        auto res = clients[i]->Cos(j);
+      }
+      catch (const std::exception& ex)
+      {
+        std::cerr << ex.what() << std::endl;
+      }*/
+    }
+  }
+
+  for (auto it = clients.begin(); it != clients.end(); it++)
+  {
+    auto commands = commandIds[(*it)->GetClientId()];
+
+    for (auto itCommand = commands.begin(); itCommand != commands.end(); itCommand++)
+    {
+      auto result = (*it)->GetResult(*itCommand);
+
+      std::cout << "result of " << *itCommand  << "=" << result << std::endl;
+    }
   }
 
   std::cout << "enter to exit" << std::endl;
