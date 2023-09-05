@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <queue>
-
+#include <cmath>
 #include "commandprocessor.h"
 #include "server.h"
 
