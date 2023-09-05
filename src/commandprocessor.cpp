@@ -4,11 +4,11 @@
 #include <queue>
 
 #include "commandprocessor.h"
-#include "pubsubserver.h"
+#include "server.h"
 
 
 CommandProcessor::CommandProcessor():
-  pubSubServer_(PubSubServer::getInstance()),
+  parentServer_(Server::getInstance()),
   stopRequested_(false)
 {
   thread_ =
@@ -59,7 +59,7 @@ void CommandProcessor::Work()
     {
       auto replay = ProcessCommand(commandQueue.front());
       commandQueue.pop();
-      pubSubServer_->Publish(replay);
+      parentServer_->OnAnswerReady(replay);
     }
   }
 }
@@ -69,15 +69,15 @@ CommandPtr CommandProcessor::ProcessCommand(CommandPtr command) const
   // Simulate some processing.
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-  std::string replayPayload = "UNKNOWN_COMMAND_RECEIVED";
+  double replayPayload = 0;
 
-  if (command->payload_ == "TODO")
+  if (command->topic_ == Command::TODO_COS)
   {
-    replayPayload = "REPLAY_TODO";    
+    replayPayload = std::cos(command->payload_);    
   }
-  else if (command->payload_ == "SYNC_TODO")
+  else if (command->payload_ == Command::TODO_SIN)
   {
-    replayPayload = "REPLAY_SYNC_TODO";
+    replayPayload = std::sin(command->payload_);
   }
   
   CommandPtr replay = command->CreateReplay(replayPayload);

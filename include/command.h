@@ -10,14 +10,19 @@ typedef std::shared_ptr<Command> CommandPtr;
 class Command
 {
 public:
+  enum E_COMMAND
+  {
+    TODO_SIN,
+    TODO_COS
+  };
+
   explicit Command(long command_id):
     commandId_(command_id)
   {
     timestamp_ = GetTimeStamp();
   }
-  std::string topic_;
-  std::string payload_;
-  std::string replayTopic_;
+  E_COMMAND topic_;
+  double payload_;
   long commandId_ = 0;
   long long timestamp_;
 
@@ -31,10 +36,9 @@ public:
     return timestamp.count();
   }
 
-  CommandPtr CreateReplay(const std::string& payload)
+  CommandPtr CreateReplay(const double payload)
   {
     CommandPtr replay(new Command(commandId_));
-    replay->topic_ = replayTopic_;
     replay->timestamp_ = timestamp_;
     replay->payload_ = payload;
     return replay;

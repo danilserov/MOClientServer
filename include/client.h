@@ -5,29 +5,32 @@
 #include <thread>
 #include <condition_variable>
 
-#include "pubsubserver.h"
-#include "isubscriber.h"
+#include "server.h"
 #include "command.h"
 
-class CommandEmitter: public ISubscriber
+class Client
 {
 private:
-  std::atomic_int numOfMessagesMax_;
   std::string client_id_;
   std::thread thread_;
-  std::shared_ptr<PubSubServer> pubSubServer_;
+  ServerPtr server_;
   std::atomic<long> curCommandId;
 public:
   const int SYNC_SEND_TIMEOUT_SEC = 10;
-  CommandEmitter(const std::string& client_id, int numOfMessagesMax);
-  ~CommandEmitter();
+  Client(const std::string& client_id);
+  ~Client();
   void Stop();
+  double Sin(double a);
+  double Cos(double a);
+  int SinAsync(double a);
+  int CosAsync(double a);
+  double GetResult(int command_id);
   CommandPtr ExecuteSync(CommandPtr command);
-private:
+private:  
   void Publish(CommandPtr command);
   bool stopRequested_;
   void Work();
-  void OnReceive(CommandPtr command) override;  
+  void OnReceive(CommandPtr command);  
 private:
   std::condition_variable conditionSyncReceived_;
   std::atomic<long> syncCommandId_;
@@ -35,4 +38,4 @@ private:
   std::mutex mutexSyncSend_;
 };
 
-typedef std::shared_ptr<CommandEmitter> CommandEmitterPtr;
+typedef std::shared_ptr<Client> ClientPtr;

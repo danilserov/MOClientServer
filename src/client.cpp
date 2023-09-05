@@ -1,37 +1,31 @@
 #include <iostream>
 #include <fstream>
-#include "commandemitter.h"
+#include "client.h"
 #include "mostat.h"
 
 using namespace std::chrono_literals;
 
 
-CommandEmitter::CommandEmitter(const std::string& client_id, int numOfMessagesMax):
+Client::Client(const std::string& client_id):
   stopRequested_(false),
   client_id_(client_id),
   curCommandId(0),
   syncResult_(nullptr),
-  numOfMessagesMax_(numOfMessagesMax),
-  pubSubServer_(PubSubServer::getInstance())
+  server_(Server::getInstance())
 {
-  pubSubServer_->
-    Subscribe(client_id_, static_cast<ISubscriber*>(this));
-
   if (client_id != "test_sync_client")
   {
     thread_ =
-      std::thread(&CommandEmitter::Work, this);
+      std::thread(&Client::Work, this);
   }  
 }
 
-CommandEmitter::~CommandEmitter()
+Client::~Client()
 {
-  pubSubServer_->
-    Unsubscribe(client_id_, static_cast<ISubscriber*>(this));
   Stop();
 }
 
-void CommandEmitter::OnReceive(CommandPtr command)
+void Client::OnReceive(CommandPtr command)
 {
   MOStat::received_++;
 
@@ -42,36 +36,18 @@ void CommandEmitter::OnReceive(CommandPtr command)
   }
 
   auto duration = Command::GetTimeStamp() - command->timestamp_;
-
-  if (command->payload_ == "REPLAY_TODO")
-  {    
-    if (MOStat::maxAsyncTime_ < duration)
-    {
-      MOStat::maxAsyncTime_ = (long)duration;
-    }
-  }
-
-  if (command->payload_ == "REPLAY_SYNC_TODO")
-  {
-    if (MOStat::maxSyncTime_ < duration)
-    {
-      MOStat::maxSyncTime_ = (long)duration;
-    }
-  }
 }
 
-void CommandEmitter::Publish(CommandPtr command)
+void Client::Publish(CommandPtr command)
 {
   MOStat::sent_++;
-  pubSubServer_->Publish(command);
 }
 
-CommandPtr CommandEmitter::ExecuteSync(CommandPtr command)
+CommandPtr Client::ExecuteSync(CommandPtr command)
 {
   CommandPtr result = nullptr;  
 
-  command->replayTopic_ = client_id_;
-  command->payload_ = "SYNC_TODO";
+  command->payload_ = 50;
   syncCommandId_ = command->commandId_;
   Publish(command);
 
@@ -87,16 +63,14 @@ CommandPtr CommandEmitter::ExecuteSync(CommandPtr command)
   return result;
 }
 
-void CommandEmitter::Work()
+void Client::Work()
 {
-  while (!stopRequested_ 
-    && numOfMessagesMax_ > MOStat::sent_
-    )
+  while (!stopRequested_)
   {
     CommandPtr command(new Command(curCommandId++));
-    command->replayTopic_ = client_id_;
-    command->payload_ = "TODO";
-    command->topic_ = PubSubServer::TOPIC_COMMAND;
+
+    command->payload_ = 50;
+    command->topic_ = Command::TODO_SIN;
     
     if (MOStat::sent_ % 100 == 0)
     {
@@ -110,7 +84,29 @@ void CommandEmitter::Work()
   }
 }
 
-void CommandEmitter::Stop()
+double Client::Sin(double a)
+{
+  return 0;
+}
+double Client::Cos(double a)
+{
+  return 0;
+}
+int Client::SinAsync(double a)
+{
+  return 0;
+}
+int Client::CosAsync(double a)
+{
+  return 0;
+}
+
+double Client::GetResult(int command_id)
+{
+  return 0;
+}
+
+void Client::Stop()
 {
   stopRequested_ = true;
   conditionSyncReceived_.notify_all();

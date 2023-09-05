@@ -1,10 +1,9 @@
 ﻿#include <vector>
 
 #include "program.h"
-#include "pubsubserver.h"
 #include "commandprocessor.h"
-#include "loadbalancer.h"
-#include "commandemitter.h"
+#include "server.h"
+#include "client.h"
 #include "mostat.h"
 
 using namespace std::chrono_literals;
@@ -17,7 +16,8 @@ int main(int argc, char* argv[])
 
   if (argc < 2)
   {
-    std::cerr << "Usage: MOClientServer <num_of_clients> <num_of_commands_per_client" << std::endl;
+    std::cerr << "Usage: MOClientServer "
+     << "<num_of_clients> <num_of_commands_per_client" << std::endl;
     std::cout << "will create: " << numOfClients << " clients by default" << std::endl;
   }
   else
@@ -25,24 +25,20 @@ int main(int argc, char* argv[])
     numOfClients = atoi(argv[1]);
   }
 
-  int numOfMessages = 1000000;
+  int numOfMessages = 1000;
 
   if (argc > 2)
   {
     numOfMessages = atoi(argv[2]);
   }
 
-
-  PubSubServerPtr pubSubServer(PubSubServer::getInstance());
-  LoadBalancerPtr server(new LoadBalancer());
-
-  std::vector<CommandEmitterPtr> clients;
+  std::vector<ClientPtr> clients;
 
   for (int i = 0; i < numOfClients; i++)
   {
     clients.push_back(
-    CommandEmitterPtr(
-        new CommandEmitter("client_" + std::to_string(i), numOfMessages)
+    ClientPtr(
+        new Client("client_" + std::to_string(i))
       )
     );
   }
@@ -84,7 +80,5 @@ int main(int argc, char* argv[])
     (*it)->Stop();
   }
 
-  server->Stop();
-  pubSubServer->Stop();
 	return 0;
 }

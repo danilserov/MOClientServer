@@ -2,14 +2,19 @@
 
 #include <string>
 #include <queue>
+#include <memory>
+#include <thread>
+#include <condition_variable>
+#include "command.h"
 
-#include "pubsubserver.h"
+class Server;
+typedef std::shared_ptr<Server> ServerPtr;
 
 class CommandProcessor
 {
   friend class CommandProcessorDecorator;
 private:
-  std::shared_ptr<PubSubServer> pubSubServer_;
+  ServerPtr parentServer_;
   std::thread thread_;
   bool stopRequested_;
   void Work();

@@ -1,20 +1,34 @@
 
-#include "loadbalancer.h"
+#include "server.h"
+#include "mostat.h"
 
-LoadBalancer::LoadBalancer() :
-  pubSubServer_(PubSubServer::getInstance())
+ServerPtr Server::instance_ = nullptr;
+
+void Server::CustomDeleter(Server* ptr)
 {
-  pubSubServer_->
-    Subscribe(PubSubServer::TOPIC_COMMAND, static_cast<ISubscriber*>(this));
+  delete ptr;
 }
 
-LoadBalancer::~LoadBalancer()
+ServerPtr Server::getInstance()
 {
-  pubSubServer_->
-    Unsubscribe(PubSubServer::TOPIC_COMMAND, static_cast<ISubscriber*>(this));
+  if (!instance_)
+  {
+    instance_.reset(new Server(), Server::CustomDeleter);
+  }
+  return instance_;
 }
 
-CommandProcessorPtr LoadBalancer::GetAvailableProc()
+Server::Server()
+{
+
+}
+
+Server::~Server()
+{
+
+}
+
+CommandProcessorPtr Server::GetAvailableProc()
 {
   int max_score_val = 1000000;
   size_t procSize = 0;
@@ -52,7 +66,7 @@ CommandProcessorPtr LoadBalancer::GetAvailableProc()
   return retVal;
 }
 
-void LoadBalancer::OnReceive(CommandPtr command)
+void Server::OnReceive(CommandPtr command)
 {
   auto proc = GetAvailableProc();
   proc->AddCommand(command);
@@ -60,11 +74,15 @@ void LoadBalancer::OnReceive(CommandPtr command)
   if (proc->GetBusyScore() > NORMAL_BUSY_SCORE)
   {
     //As a general rule, we need to create a better waiting mechanism here. But this will do the job.
-    std::this_thread::sleep_for(std::chrono::milliseconds(PubSubServer::APROX_SERVER_DELAY));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
 
-void LoadBalancer::Stop()
+void Server::OnAnswerReady(CommandPtr command)
+{
+
+}
+void Server::Stop()
 {
   std::unique_lock<std::shared_timed_mutex> lock(mutexProc_);
   for (auto it = commandProcesseros_.begin(); it != commandProcesseros_.end(); ++it)
