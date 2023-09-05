@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "server.h"
-#include "slient.h"
+#include "client.h"
 #include "command.h"
 
 TEST(motestsSuite, ServerCase) {
