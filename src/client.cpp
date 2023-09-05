@@ -31,7 +31,6 @@ Client::~Client()
 void Client::Send(CommandPtr command)
 {
   MOStat::sent_++;
-  command->clientId_ = client_id_;
   server_->ExecuteCommand(command);
 }
 
@@ -44,8 +43,7 @@ void Client::Post(CommandPtr command)
 CommandPtr Client::ExecuteSync(CommandPtr command)
 {
   CommandPtr result = nullptr;  
-   
-  command->highPrior_ = true;
+
   Send(command);
 
   syncCommandId_ = command->GetCommandId();
@@ -102,7 +100,7 @@ void Client::Work()
 
     for (auto it = results.begin(); it != results.end(); it++)
     { 
-      auto duration = Command::GetTimeStamp() - (*it)->timestamp_;
+      auto duration = Command::GetCurTimeStamp() - (*it)->GetTimeStamp();
 
       if ((*it)->GetCommandId() == syncCommandId_)
       {
@@ -131,8 +129,8 @@ void Client::Work()
 
 double Client::Sin(double a)
 {
-  CommandPtr command = std::make_shared<Command>();
-  command->payload_ = a;
+  CommandPtr command(new Command(GetClientId(), true));
+  command->SetPayload(a);
   command->commandType = Command::TODO_SIN;
   auto result = ExecuteSync(command);
 
@@ -141,13 +139,13 @@ double Client::Sin(double a)
     throw std::runtime_error("wrong result, possible timeout");
   }
 
-  return result->payload_;
+  return result->GetPayload();
 }
 
 double Client::Cos(double a)
 {
-  CommandPtr command = std::make_shared<Command>();
-  command->payload_ = a;
+  CommandPtr command(new Command(GetClientId(), true));
+  command->SetPayload(a);
   command->commandType = Command::TODO_COS;
   auto result = ExecuteSync(command);
 
@@ -156,21 +154,21 @@ double Client::Cos(double a)
     throw std::runtime_error("wrong result");
   }
 
-  return result->payload_;
+  return result->GetPayload();
 }
 
 int Client::SinAsync(double a)
 {
-  CommandPtr command = std::make_shared<Command>();
-  command->payload_ = a;
+  CommandPtr command(new Command(GetClientId(), false));
+  command->SetPayload(a);
   command->commandType = Command::TODO_SIN;
   Post(command);
   return command->GetCommandId();
 }
 int Client::CosAsync(double a)
 {
-  CommandPtr command = std::make_shared<Command>();
-  command->payload_ = a;
+  CommandPtr command(new Command(GetClientId(), false));
+  command->SetPayload(a);
   command->commandType = Command::TODO_COS;
   Post(command);
   return command->GetCommandId();
@@ -183,7 +181,7 @@ bool Client::DoGetResult(int command_id, double& result)
 
   if (it != results_.end())
   {    
-    result = it->second->payload_;
+    result = it->second->GetPayload();
     results_.erase(it);
     return true;
   }

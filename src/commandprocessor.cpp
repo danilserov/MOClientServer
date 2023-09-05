@@ -73,11 +73,11 @@ CommandPtr CommandProcessor::ProcessCommand(CommandPtr command) const
 
   if (command->commandType == Command::TODO_COS)
   {
-    replayPayload = std::cos(command->payload_);    
+    replayPayload = std::cos(command->GetPayload());
   }
   else if (command->commandType == Command::TODO_SIN)
   {
-    replayPayload = std::sin(command->payload_);
+    replayPayload = std::sin(command->GetPayload());
   }
   else
   {
@@ -93,7 +93,7 @@ void CommandProcessor::AddCommand(CommandPtr command)
   {
     std::lock_guard<std::mutex> lock(mutexQueue_);
 
-    if (command->highPrior_)
+    if (command->IsHighPrior())
     {
       commandQueue_.push_front(command);
     }

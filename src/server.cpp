@@ -70,7 +70,7 @@ void Server::ExecuteCommand(CommandPtr command)
 
   proc->AddCommand(command);
 
-  if (proc->GetBusyScore() > NORMAL_BUSY_SCORE && !command->highPrior_)
+  if (proc->GetBusyScore() > NORMAL_BUSY_SCORE && !command->IsHighPrior())
   {
     //As a general rule, we need to create a better waiting mechanism here. But this will do the job.
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -99,10 +99,10 @@ std::shared_ptr<std::condition_variable> Server::GetClientWaiter(int client_id)
 
 void Server::OnAnswerReady(CommandPtr command)
 {
-  auto clientReady = GetClientWaiter(command->clientId_);
+  auto clientReady = GetClientWaiter(command->GetClientId());
   {
     std::lock_guard<std::mutex> lock(mutexResults_);
-    results_[command->clientId_].push_back(command);  
+    results_[command->GetClientId()].push_back(command);
   }
 
   if (clientReady)

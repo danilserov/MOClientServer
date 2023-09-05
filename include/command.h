@@ -13,6 +13,10 @@ class Command
 private:
   static std::atomic_int idGenerator_;
   int commandId_;
+  long long timestamp_;
+  int clientId_;
+  bool highPrior_;
+  double payload_;
 public:
   enum E_COMMAND
   {
@@ -20,18 +24,18 @@ public:
     TODO_COS = 2
   };
 
-  Command();
+  Command(int clientId, bool highPrior);
 
-  E_COMMAND commandType;
-  double payload_;
-  
-  int clientId_;
-  long long timestamp_;
-  bool highPrior_;
+  E_COMMAND commandType;  
 
-  static long long GetTimeStamp();
+  static long long GetCurTimeStamp();
   CommandPtr CreateReplay(const double payload);
   int GetCommandId();
+  int GetClientId();
+  long long GetTimeStamp();
+  bool IsHighPrior();
+  void SetPayload(double a);
+  double GetPayload();
 };
 
 

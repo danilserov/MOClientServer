@@ -3,7 +3,7 @@
 
 std::atomic_int Command::idGenerator_(1);
 
-long long Command::GetTimeStamp()
+long long Command::GetCurTimeStamp()
 {
   auto current_time = std::chrono::system_clock::now();
   std::chrono::milliseconds timestamp =
@@ -13,12 +13,12 @@ long long Command::GetTimeStamp()
   return timestamp.count();
 }
 
-Command::Command() :
-  clientId_(-1),
-  highPrior_(false)
+Command::Command(int clientId, bool highPrior) :
+  clientId_(clientId),
+  highPrior_(highPrior)
 {
   commandId_ = idGenerator_++;
-  timestamp_ = GetTimeStamp();
+  timestamp_ = GetCurTimeStamp();
 }
 
 int Command::GetCommandId()
@@ -26,9 +26,34 @@ int Command::GetCommandId()
   return commandId_;
 }
 
+long long Command::GetTimeStamp()
+{
+  return timestamp_;
+}
+
+int Command::GetClientId()
+{
+  return clientId_;
+}
+
+bool Command::IsHighPrior()
+{
+  return highPrior_;
+}
+
+void Command::SetPayload(double a)
+{
+  payload_ = a;
+}
+
+double Command::GetPayload()
+{
+  return payload_;
+}
+
 CommandPtr Command::CreateReplay(const double payload)
 {
-  CommandPtr replay(new Command());
+  CommandPtr replay(new Command(clientId_, false));
   replay->timestamp_ = timestamp_;
   replay->payload_ = payload;
   replay->clientId_ = clientId_;
