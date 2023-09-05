@@ -18,7 +18,8 @@ public:
 
   explicit Command(long command_id):
     commandId_(command_id),
-    clientId_(-1)
+    clientId_(-1),
+    highPrior_(false)
   {
     timestamp_ = GetTimeStamp();
   }
@@ -27,6 +28,7 @@ public:
   int commandId_;
   int clientId_;
   long long timestamp_;
+  bool highPrior_;
 
   static long long GetTimeStamp()
   {

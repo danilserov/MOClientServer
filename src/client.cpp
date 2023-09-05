@@ -35,6 +35,7 @@ CommandPtr Client::ExecuteSync(CommandPtr command)
 {
   CommandPtr result = nullptr;  
    
+  command->highPrior_ = true;
   Send(command);
 
   syncCommandId_ = command->commandId_;

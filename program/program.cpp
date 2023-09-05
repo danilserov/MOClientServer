@@ -16,8 +16,8 @@ int main(int argc, char* argv[])
 
   if (argc < 2)
   {
-    std::cerr << "Usage: MOClientServer "
-     << "<num_of_clients> <num_of_commands_per_client" << std::endl;
+    std::cout << "Usage: moclientserver "
+     << "<num_of_clients>" << std::endl;
     std::cout << "will create: " << numOfClients << " clients by default" << std::endl;
   }
   else
@@ -25,12 +25,10 @@ int main(int argc, char* argv[])
     numOfClients = atoi(argv[1]);
   }
 
-  int numOfMessages = 10;
-
-  if (argc > 2)
-  {
-    numOfMessages = atoi(argv[2]);
-  }
+  int numOfAsyncSIN_Messages = 1000;
+  int numOfAsyncCOS_Messages = 1000;
+  int numOfSyncSIN_Messages = 10;
+  int numOfSyncCOS_Messages = 10;
 
   std::vector<ClientPtr> clients;
 
@@ -41,24 +39,45 @@ int main(int argc, char* argv[])
 
   std::unordered_map<int, std::vector<int>> commandIds;
 
-  for (int j = 0; j < numOfMessages; j++)
+  // Send async commands.
+  for (int i = 0; i < numOfClients; i++)
   {
-    for (int i = 0; i < numOfClients; i++)
+    for (int j = 0; j < numOfAsyncCOS_Messages; j++)
     {
       commandIds[clients[i]->GetClientId()].push_back(
         clients[i]->CosAsync(i + j)
       );
+    }  
+
+    for (int j = 0; j < numOfAsyncSIN_Messages; j++)
+    {
+      commandIds[clients[i]->GetClientId()].push_back(
+        clients[i]->SinAsync(i + j)
+      );
     }
   }
 
-  for (int j = 0; j < numOfMessages; j++)
+  // Execute Sync Commands.
+  for (int i = 0; i < numOfClients; i++)
   {
-    for (int i = 0; i < numOfClients; i++)
+    for (int j = 0; j < numOfSyncCOS_Messages; j++)
     {
       try
       {
         auto res = clients[i]->Cos(j + i);
-        std::cout << "cos("<< j + i<<")="<< res << std::endl;
+        std::cout << "cos(" << j + i << ")=" << res << std::endl;
+      }
+      catch (const std::exception& ex)
+      {
+        std::cerr << ex.what() << std::endl;
+      }
+    }
+    for (int j = 0; j < numOfSyncSIN_Messages; j++)
+    {
+      try
+      {
+        auto res = clients[i]->Sin(j + i);
+        std::cout << "sin(" << j + i << ")=" << res << std::endl;
       }
       catch (const std::exception& ex)
       {
@@ -67,6 +86,7 @@ int main(int argc, char* argv[])
     }
   }
 
+  // Wait for async commands.
   for (auto it = clients.begin(); it != clients.end(); it++)
   {
     auto commands = commandIds[(*it)->GetClientId()];

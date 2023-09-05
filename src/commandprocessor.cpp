@@ -39,7 +39,7 @@ void CommandProcessor::Work()
 {
   while (!stopRequested_)
   {
-    std::queue<CommandPtr> commandQueue;
+    std::deque<CommandPtr> commandQueue;
 
     CommandPtr command = nullptr;
     {
@@ -58,7 +58,7 @@ void CommandProcessor::Work()
     while (!commandQueue.empty())
     {
       auto replay = ProcessCommand(commandQueue.front());
-      commandQueue.pop();
+      commandQueue.pop_front();
       parentServer_->OnAnswerReady(replay);
     }
   }
@@ -67,7 +67,7 @@ void CommandProcessor::Work()
 CommandPtr CommandProcessor::ProcessCommand(CommandPtr command) const
 {
   // Simulate some processing.
-  std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  //std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
   double replayPayload = 0;
 
@@ -88,7 +88,15 @@ void CommandProcessor::AddCommand(CommandPtr command)
 {
   {
     std::lock_guard<std::mutex> lock(mutexQueue_);
-    commandQueue_.push(command);
+
+    if (command->highPrior_)
+    {
+      commandQueue_.push_front(command);
+    }
+    else
+    {
+      commandQueue_.push_back(command);
+    }    
   }
 
   conditionQueue_.notify_one();
