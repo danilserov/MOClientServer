@@ -64,7 +64,7 @@ void Client::Work()
       continue;
     }
 
-    MOStat::received_ += results.size();
+    MOStat::received_ += (int)results.size();
 
     for (auto it = results.begin(); it != results.end(); it++)
     { 
@@ -77,14 +77,14 @@ void Client::Work()
 
         if (MOStat::maxSyncTime_ < duration)
         {
-          MOStat::maxSyncTime_ = duration;
+          MOStat::maxSyncTime_ = (int)duration;
         }        
       }
       else
       {
         if (MOStat::maxAsyncTime_ < duration)
         {
-          MOStat::maxAsyncTime_ = duration;
+          MOStat::maxAsyncTime_ = (int)duration;
         }
 
         std::lock_guard<std::mutex> lock(mutexAsyncResult_);
