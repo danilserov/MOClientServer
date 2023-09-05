@@ -182,8 +182,9 @@ bool Client::DoGetResult(int command_id, double& result)
   auto it = results_.find(command_id);
 
   if (it != results_.end())
-  {
+  {    
     result = it->second->payload_;
+    results_.erase(it);
     return true;
   }
 
@@ -200,6 +201,18 @@ double Client::GetResult(int command_id)
     conditionAsyncReceived_.wait(lock);
   }  
   return res;
+}
+
+std::vector<int> Client::GetAvailableResultsIds()
+{
+  std::vector<int> results;
+  std::unique_lock<std::mutex> lock(mutexAsyncResult_);
+
+  for (auto it = results_.begin(); it != results_.end(); it++)
+  {
+    results.push_back(it->first);
+  }
+  return results;
 }
 
 void Client::Stop()

@@ -1,4 +1,5 @@
 ﻿#include <vector>
+#include <unordered_set>
 
 #include "program.h"
 #include "commandprocessor.h"
@@ -37,7 +38,7 @@ int main(int argc, char* argv[])
     clients.push_back(ClientPtr(new Client(i)));
   }
 
-  std::unordered_map<int, std::vector<int>> commandIds;
+  std::unordered_set<int> commandIds;
 
   // Send async commands.
   for (int i = 0; i < numOfClients; i++)
@@ -45,7 +46,7 @@ int main(int argc, char* argv[])
     for (int j = 0; j < numOfAsyncCOS_Messages; j++)
     {
       auto a = j + i;
-      commandIds[clients[i]->GetClientId()].push_back(
+      commandIds.insert(
         clients[i]->CosAsync((double)a)
       );
     }  
@@ -53,7 +54,7 @@ int main(int argc, char* argv[])
     for (int j = 0; j < numOfAsyncSIN_Messages; j++)
     {
       auto a = j + i;
-      commandIds[clients[i]->GetClientId()].push_back(
+      commandIds.insert(
         clients[i]->SinAsync((double)a)
       );
     }
@@ -91,17 +92,24 @@ int main(int argc, char* argv[])
   }
 
   // Wait for async commands.
-  for (auto it = clients.begin(); it != clients.end(); it++)
+
+  while (!commandIds.empty())
   {
-    auto commands = commandIds[(*it)->GetClientId()];
-
-    for (auto itCommand = commands.begin(); itCommand != commands.end(); itCommand++)
+    for (auto it = clients.begin(); it != clients.end(); it++)
     {
-      auto result = (*it)->GetResult(*itCommand);
+      auto commands = (*it)->GetAvailableResultsIds();
 
-      std::cout << "result of command[" << *itCommand  << "]=" << result << std::endl;
+      for (auto itCommand = commands.begin(); itCommand != commands.end(); itCommand++)
+      {
+        auto result = (*it)->GetResult(*itCommand);
+        commandIds.erase(*itCommand);
+
+        std::cout << "result of command[" << *itCommand << "]=" << result << std::endl;
+      }
     }
+    std::this_thread::sleep_for(1ms);
   }
+
 
   std::cout 
     << "Sent:" << MOStat::sent_ << "\t"

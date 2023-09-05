@@ -31,6 +31,7 @@ public:
   {
     return client_id_;
   }
+  std::vector<int> GetAvailableResultsIds();
 private:
   bool DoGetResult(int command_id, double& result);
 

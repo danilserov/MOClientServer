@@ -28,7 +28,7 @@ private:
 private:  
   CommandProcessorPtr GetAvailableProc();
   void OnAnswerReady(CommandPtr command);
-public:
+public:  
   static ServerPtr getInstance();
   void Stop();
   void ExecuteCommand(CommandPtr command);
