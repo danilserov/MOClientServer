@@ -49,9 +49,9 @@ CommandPtr Client::ExecuteSync(CommandPtr command)
   syncCommandId_ = command->GetCommandId();
 
   std::unique_lock<std::mutex> lock(mutexSyncSend_);
-  auto timeout = std::chrono::steady_clock::now() + std::chrono::seconds(SYNC_SEND_TIMEOUT_SEC);
+  auto timeout = std::chrono::seconds(SYNC_SEND_TIMEOUT_SEC);
 
-  conditionSyncReceived_.wait_until(lock, timeout, [this] {
+  conditionSyncReceived_.wait_for(lock, timeout, [this] {
     return syncResult_!= nullptr || stopRequested_;
     });
 
