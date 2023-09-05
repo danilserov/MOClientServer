@@ -67,12 +67,13 @@ CommandProcessorPtr Server::GetAvailableProc()
 void Server::ExecuteCommand(CommandPtr command)
 {
   auto proc = GetAvailableProc();
+
   proc->AddCommand(command);
 
-  if (proc->GetBusyScore() > NORMAL_BUSY_SCORE)
+  if (proc->GetBusyScore() > NORMAL_BUSY_SCORE && !command->highPrior_)
   {
     //As a general rule, we need to create a better waiting mechanism here. But this will do the job.
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
 

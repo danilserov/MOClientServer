@@ -33,10 +33,16 @@ public:
   }
 private:
   bool DoGetResult(int command_id, double& result);
+
   std::unordered_map<int, CommandPtr> results_;
   std::mutex mutexAsyncResult_;
+  std::thread threadAsyncSend_;
+  std::queue<CommandPtr> asyncQueue_;
+  void AsyncSendThread();
+
   std::condition_variable conditionAsyncReceived_;
   void Send(CommandPtr command);
+  void Post(CommandPtr command);
   bool stopRequested_;
   void Work();
 private:

@@ -75,9 +75,13 @@ CommandPtr CommandProcessor::ProcessCommand(CommandPtr command) const
   {
     replayPayload = std::cos(command->payload_);    
   }
-  else if (command->payload_ == Command::TODO_SIN)
+  else if (command->commandType == Command::TODO_SIN)
   {
     replayPayload = std::sin(command->payload_);
+  }
+  else
+  {
+    // Unknown command TODO return error somehow.
   }
   
   CommandPtr replay = command->CreateReplay(replayPayload);

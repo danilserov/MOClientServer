@@ -41,18 +41,20 @@ int main(int argc, char* argv[])
 
   // Send async commands.
   for (int i = 0; i < numOfClients; i++)
-  {
+  { 
     for (int j = 0; j < numOfAsyncCOS_Messages; j++)
     {
+      auto a = j + i;
       commandIds[clients[i]->GetClientId()].push_back(
-        clients[i]->CosAsync(i + j)
+        clients[i]->CosAsync((double)a)
       );
     }  
 
     for (int j = 0; j < numOfAsyncSIN_Messages; j++)
     {
+      auto a = j + i;
       commandIds[clients[i]->GetClientId()].push_back(
-        clients[i]->SinAsync(i + j)
+        clients[i]->SinAsync((double)a)
       );
     }
   }
@@ -64,8 +66,9 @@ int main(int argc, char* argv[])
     {
       try
       {
-        auto res = clients[i]->Cos(j + i);
-        std::cout << "cos(" << j + i << ")=" << res << std::endl;
+        auto a = j + i;
+        auto res = clients[i]->Cos((double)a);
+        std::cout << "cos(" << a << ")=" << res << std::endl;
       }
       catch (const std::exception& ex)
       {
@@ -76,8 +79,9 @@ int main(int argc, char* argv[])
     {
       try
       {
-        auto res = clients[i]->Sin(j + i);
-        std::cout << "sin(" << j + i << ")=" << res << std::endl;
+        auto a = j + i;
+        auto res = clients[i]->Sin((double)a);
+        std::cout << "sin(" << a << ")=" << res << std::endl;
       }
       catch (const std::exception& ex)
       {

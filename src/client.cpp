@@ -17,6 +17,9 @@ Client::Client(const int client_id):
   {
     thread_ =
       std::thread(&Client::Work, this);
+
+    threadAsyncSend_ = 
+      std::thread(&Client::AsyncSendThread, this);
   }  
 }
 
@@ -27,9 +30,15 @@ Client::~Client()
 
 void Client::Send(CommandPtr command)
 {
+  MOStat::sent_++;
   command->clientId_ = client_id_;
-  command->commandId_ = MOStat::sent_++;
   server_->ExecuteCommand(command);
+}
+
+void Client::Post(CommandPtr command)
+{
+  std::lock_guard<std::mutex> lock(mutexAsyncResult_);
+  asyncQueue_.push(command);
 }
 
 CommandPtr Client::ExecuteSync(CommandPtr command)
@@ -39,7 +48,7 @@ CommandPtr Client::ExecuteSync(CommandPtr command)
   command->highPrior_ = true;
   Send(command);
 
-  syncCommandId_ = command->commandId_;
+  syncCommandId_ = command->GetCommandId();
 
   std::unique_lock<std::mutex> lock(mutexSyncSend_);
   auto timeout = std::chrono::steady_clock::now() + std::chrono::seconds(SYNC_SEND_TIMEOUT_SEC);
@@ -51,6 +60,30 @@ CommandPtr Client::ExecuteSync(CommandPtr command)
   std::swap(result, syncResult_);
 
   return result;
+}
+
+void Client::AsyncSendThread()
+{
+  while (!stopRequested_)
+  {
+    std::queue<CommandPtr> asyncQueue;
+    {
+      std::lock_guard<std::mutex> lock(mutexAsyncResult_);
+      std::swap(asyncQueue_, asyncQueue);
+    }
+
+    if (asyncQueue.empty())
+    {
+      std::this_thread::sleep_for(1ms);
+      continue;
+    }
+
+    while (!asyncQueue.empty())
+    {
+      Send(asyncQueue.front());
+      asyncQueue.pop();
+    }
+  }
 }
 
 void Client::Work()
@@ -71,7 +104,7 @@ void Client::Work()
     { 
       auto duration = Command::GetTimeStamp() - (*it)->timestamp_;
 
-      if ((*it)->commandId_ == syncCommandId_)
+      if ((*it)->GetCommandId() == syncCommandId_)
       {
         syncResult_ = *it;
         conditionSyncReceived_.notify_one();
@@ -89,7 +122,7 @@ void Client::Work()
         }
 
         std::lock_guard<std::mutex> lock(mutexAsyncResult_);
-        results_[(*it)->commandId_] = (*it);        
+        results_[(*it)->GetCommandId()] = (*it);
       }
     }
     conditionAsyncReceived_.notify_all();
@@ -98,22 +131,22 @@ void Client::Work()
 
 double Client::Sin(double a)
 {
-  CommandPtr command = std::make_shared<Command>(0);
+  CommandPtr command = std::make_shared<Command>();
   command->payload_ = a;
   command->commandType = Command::TODO_SIN;
   auto result = ExecuteSync(command);
 
   if (result == nullptr)
   {
-    throw std::runtime_error("wrong result");
+    throw std::runtime_error("wrong result, possible timeout");
   }
-  //std::cout << "sin " << a << "=" << result->payload_ << std::endl;
+
   return result->payload_;
 }
 
 double Client::Cos(double a)
 {
-  CommandPtr command = std::make_shared<Command>(0);
+  CommandPtr command = std::make_shared<Command>();
   command->payload_ = a;
   command->commandType = Command::TODO_COS;
   auto result = ExecuteSync(command);
@@ -122,25 +155,25 @@ double Client::Cos(double a)
   {
     throw std::runtime_error("wrong result");
   }
-  //std::cout << "cos " << a << "=" << result->payload_ << std::endl;
+
   return result->payload_;
 }
 
 int Client::SinAsync(double a)
 {
-  CommandPtr command = std::make_shared<Command>(0);
+  CommandPtr command = std::make_shared<Command>();
   command->payload_ = a;
   command->commandType = Command::TODO_SIN;
-  Send(command);
-  return command->commandId_;
+  Post(command);
+  return command->GetCommandId();
 }
 int Client::CosAsync(double a)
 {
-  CommandPtr command = std::make_shared<Command>(0);
+  CommandPtr command = std::make_shared<Command>();
   command->payload_ = a;
   command->commandType = Command::TODO_COS;
-  Send(command);
-  return command->commandId_;
+  Post(command);
+  return command->GetCommandId();
 }
 
 bool Client::DoGetResult(int command_id, double& result)
@@ -175,5 +208,12 @@ void Client::Stop()
   conditionSyncReceived_.notify_all();
 
   if (thread_.joinable())
+  {
     thread_.join();
+  }    
+
+  if (threadAsyncSend_.joinable())
+  {
+    threadAsyncSend_.join();
+  }
 }
