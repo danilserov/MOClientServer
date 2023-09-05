@@ -28,6 +28,11 @@ Client::~Client()
   Stop();
 }
 
+int Client::GetClientId() const
+{
+  return client_id_;
+}
+
 void Client::Send(CommandPtr command)
 {
   MOStat::sent_++;

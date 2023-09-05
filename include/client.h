@@ -16,8 +16,9 @@ private:
   int client_id_;
   std::thread thread_;
   ServerPtr server_;
-public:
   const int SYNC_SEND_TIMEOUT_SEC = 10;
+public:  
+  // Public interface.
   Client(const int client_id);
   ~Client();
   void Stop();
@@ -27,10 +28,7 @@ public:
   int CosAsync(double a);
   double GetResult(int command_id);
   CommandPtr ExecuteSync(CommandPtr command);
-  int GetClientId() const
-  {
-    return client_id_;
-  }
+  int GetClientId() const;
   std::vector<int> GetAvailableResultsIds();
 private:
   bool DoGetResult(int command_id, double& result);
