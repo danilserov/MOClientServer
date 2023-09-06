@@ -49,7 +49,7 @@ CommandPtr Client::ExecuteSync(CommandPtr command)
   auto syncCommandId = command->GetCommandId(); 
   auto res = DoGetResult(syncCommandId);
 
-  while (!res)
+  while (!res && !stopRequested_)
   {
     {
       std::unique_lock<std::mutex> lock(mutexAsyncResult_);
@@ -131,6 +131,12 @@ double Client::Sin(double a)
   command->SetPayload(a);
   command->commandType = Command::TODO_SIN;
   auto result = ExecuteSync(command);
+
+  if (!result)
+  {
+    // Normally must return error or throw exceptio.
+    return -404;
+  }
   return result->GetPayload();
 }
 
@@ -140,6 +146,12 @@ double Client::Cos(double a)
   command->SetPayload(a);
   command->commandType = Command::TODO_COS;
   auto result = ExecuteSync(command);
+
+  if (!result)
+  {
+    // Normally must return error or throw exceptio.
+    return -404;
+  }
   return result->GetPayload();
 }
 
@@ -178,18 +190,25 @@ CommandPtr Client::DoGetResult(int command_id)
 
 double Client::GetResult(int command_id)
 {
-  auto res = DoGetResult(command_id);
+  auto result = DoGetResult(command_id);
 
-  while (!res)
+  while (!result && !stopRequested_)
   {
     {
       std::unique_lock<std::mutex> lock(mutexAsyncResult_);
       conditionAsyncReceived_.wait_for(lock, std::chrono::seconds(10));
     }
     
-    res = DoGetResult(command_id);
+    result = DoGetResult(command_id);
   }  
-  return res->GetPayload();
+
+  if (!result)
+  {
+    // Normally must return error or throw exceptio.
+    return -404;
+  }
+
+  return result->GetPayload();
 }
 
 std::vector<int> Client::GetAvailableResultsIds()
