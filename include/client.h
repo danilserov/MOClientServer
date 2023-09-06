@@ -31,7 +31,7 @@ public:
   int GetClientId() const;
   std::vector<int> GetAvailableResultsIds();
 private:
-  bool DoGetResult(int command_id, double& result);
+  CommandPtr DoGetResult(int command_id);
 
   std::unordered_map<int, CommandPtr> results_;
   std::mutex mutexAsyncResult_;
@@ -40,15 +40,11 @@ private:
   void AsyncSendThread();
 
   std::condition_variable conditionAsyncReceived_;
+
   void Send(CommandPtr command);
   void Post(CommandPtr command);
   bool stopRequested_;
   void Work();
-private:
-  std::condition_variable conditionSyncReceived_;
-  std::atomic_int syncCommandId_;
-  CommandPtr syncResult_;
-  std::mutex mutexSyncSend_;
 };
 
 typedef std::shared_ptr<Client> ClientPtr;

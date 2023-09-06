@@ -26,10 +26,10 @@ int main(int argc, char* argv[])
     numOfClients = atoi(argv[1]);
   }
 
-  int numOfAsyncSIN_Messages = 1000;
-  int numOfAsyncCOS_Messages = 1000;
-  int numOfSyncSIN_Messages = 10;
-  int numOfSyncCOS_Messages = 10;
+  const int numOfAsyncSIN_Messages = 1000;
+  const int numOfAsyncCOS_Messages = 1000;
+  const int numOfSyncSIN_Messages = 100;
+  const int numOfSyncCOS_Messages = 100;
 
   std::vector<ClientPtr> clients;
 
@@ -65,29 +65,15 @@ int main(int argc, char* argv[])
   {
     for (int j = 0; j < numOfSyncCOS_Messages; j++)
     {
-      try
-      {
-        auto a = j + i;
-        auto res = clients[i]->Cos((double)a);
-        std::cout << "cos(" << a << ")=" << res << std::endl;
-      }
-      catch (const std::exception& ex)
-      {
-        std::cerr << ex.what() << std::endl;
-      }
+      auto a = j + i;
+      auto res = clients[i]->Cos((double)a);
+      std::cout << "cos(" << a << ")=" << res << std::endl;
     }
     for (int j = 0; j < numOfSyncSIN_Messages; j++)
     {
-      try
-      {
-        auto a = j + i;
-        auto res = clients[i]->Sin((double)a);
-        std::cout << "sin(" << a << ")=" << res << std::endl;
-      }
-      catch (const std::exception& ex)
-      {
-        std::cerr << ex.what() << std::endl;
-      }
+      auto a = j + i;
+      auto res = clients[i]->Sin((double)a);
+      std::cout << "sin(" << a << ")=" << res << std::endl;
     }
   }
 

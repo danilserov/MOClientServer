@@ -116,8 +116,8 @@ std::vector<CommandPtr> Server::GetReadyResults(int client_id)
   {
     auto clientReady = GetClientWaiter(client_id);
     std::unique_lock<std::mutex> lock(mutexResults_);
-    auto timeout = std::chrono::steady_clock::now() + std::chrono::microseconds(10);
-    clientReady->wait_until(lock, timeout);
+    auto timeout = std::chrono::milliseconds(10);
+    clientReady->wait_for(lock, timeout);
   }
 
   std::vector<CommandPtr> retVal;
