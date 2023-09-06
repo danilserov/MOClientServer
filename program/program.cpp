@@ -26,10 +26,27 @@ int main(int argc, char* argv[])
     numOfClients = atoi(argv[1]);
   }
 
-  const int numOfAsyncSIN_Messages = 1000;
-  const int numOfAsyncCOS_Messages = 1000;
-  const int numOfSyncSIN_Messages = 100;
-  const int numOfSyncCOS_Messages = 100;
+  int numOfAsyncSIN_Messages = 1000;
+  int numOfAsyncCOS_Messages = 1000;
+  int numOfSyncSIN_Messages = 100;
+  int numOfSyncCOS_Messages = 100;
+
+  if (argc > 2)
+  {
+    numOfAsyncSIN_Messages = atoi(argv[2]);
+  }
+  if (argc > 3)
+  {
+    numOfAsyncCOS_Messages = atoi(argv[3]);
+  }
+  if (argc > 4)
+  {
+    numOfSyncSIN_Messages = atoi(argv[4]);
+  }
+  if (argc > 5)
+  {
+    numOfSyncSIN_Messages = atoi(argv[5]);
+  }
 
   std::vector<ClientPtr> clients;
 
