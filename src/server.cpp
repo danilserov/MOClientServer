@@ -70,7 +70,7 @@ void Server::ExecuteCommand(CommandPtr command)
 
   proc->AddCommand(command);
 
-  if (proc->GetBusyScore() > NORMAL_BUSY_SCORE && !command->IsHighPrior())
+  if (proc->GetBusyScore() > NORMAL_BUSY_SCORE && !command->IsSync())
   {
     //As a general rule, we need to create a better waiting mechanism here. But this will do the job.
     std::this_thread::sleep_for(std::chrono::milliseconds(1));

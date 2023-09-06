@@ -93,7 +93,7 @@ void CommandProcessor::AddCommand(CommandPtr command)
   {
     std::lock_guard<std::mutex> lock(mutexQueue_);
 
-    if (command->IsHighPrior())
+    if (command->IsSync())
     {
       commandQueue_.push_front(command);
     }

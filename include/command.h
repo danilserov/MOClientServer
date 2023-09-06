@@ -15,7 +15,7 @@ private:
   int commandId_;
   long long timestamp_;
   int clientId_;
-  bool highPrior_;
+  bool isSync_;
   double payload_;
 public:
   enum E_COMMAND
@@ -33,7 +33,7 @@ public:
   int GetCommandId();
   int GetClientId();
   long long GetTimeStamp();
-  bool IsHighPrior();
+  bool IsSync();
   void SetPayload(double a);
   double GetPayload();
 };

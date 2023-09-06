@@ -15,7 +15,7 @@ long long Command::GetCurTimeStamp()
 
 Command::Command(int clientId, bool highPrior) :
   clientId_(clientId),
-  highPrior_(highPrior)
+  isSync_(highPrior)
 {
   commandId_ = idGenerator_++;
   timestamp_ = GetCurTimeStamp();
@@ -36,9 +36,9 @@ int Command::GetClientId()
   return clientId_;
 }
 
-bool Command::IsHighPrior()
+bool Command::IsSync()
 {
-  return highPrior_;
+  return isSync_;
 }
 
 void Command::SetPayload(double a)
@@ -58,5 +58,6 @@ CommandPtr Command::CreateReplay(const double payload)
   replay->payload_ = payload;
   replay->clientId_ = clientId_;
   replay->commandId_ = commandId_;
+  replay->isSync_ = isSync_;
   return replay;
 }

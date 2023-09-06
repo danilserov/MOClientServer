@@ -103,7 +103,7 @@ void Client::Work()
     { 
       auto duration = Command::GetCurTimeStamp() - (*it)->GetTimeStamp();
 
-      if ((*it)->IsHighPrior())
+      if ((*it)->IsSync())
       {
         if (MOStat::maxSyncTime_ < duration)
         {
