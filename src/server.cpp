@@ -1,4 +1,4 @@
-
+#include <limits>
 #include "server.h"
 #include "mostat.h"
 
@@ -30,7 +30,7 @@ Server::~Server()
 
 CommandProcessorPtr Server::GetAvailableProc()
 {
-  int max_score_val = 1000000;
+  int max_score_val = std::numeric_limits<int>::max();
   size_t procSize = 0;
   CommandProcessorPtr retVal = nullptr;
   {

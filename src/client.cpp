@@ -134,7 +134,7 @@ double Client::Sin(double a)
 
   if (!result)
   {
-    // Normally must return error or throw exceptio.
+    // Normally must return error or throw exception.
     return -404;
   }
   return result->GetPayload();
